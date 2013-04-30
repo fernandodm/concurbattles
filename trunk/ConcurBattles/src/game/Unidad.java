@@ -1,7 +1,13 @@
 package game;
 
-public class Unidad {
-	
+import java.io.Serializable;
+import java.util.List;
+
+import channel.Channel;
+
+public class Unidad implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 	private int bando;
 	private int nivel = 1;
 	private int batallasGanadas = 1;
@@ -23,6 +29,25 @@ public class Unidad {
 			contrincante.ganarPelea();
 			this.morir();
 		}
+	}
+	
+	public void viajar(Integer idActual, List<Integer> caminos) {
+		// Elegir un camino random, crear el canal correspondiente y mandarse
+		Integer ciudadDestino = caminos.get((int) Math.floor(Math.random() * caminos.size()));
+		
+		int idCamino = getIdCamino(idActual, ciudadDestino);
+		
+		Channel<Unidad> camino = new Channel<Unidad>(idCamino);
+		
+		camino.send(this);
+	}
+	
+	public Integer getIdCamino(Integer ID_1, Integer ID_2) {
+		if(ID_1 < ID_2) {
+			return new Integer(ID_1.toString() + ID_2.toString());
+		}
+		
+		return new Integer(ID_2.toString() + ID_1.toString());
 	}
 	
 	/**
