@@ -1,5 +1,7 @@
 package game;
 
+import game.Unidad;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -16,13 +18,16 @@ public class Unidad implements Serializable{
 		this.setBando(bando);
 	}
 	
+	public double probabilidadDeGanar(Unidad contrincante){
+		
+		return  (double) this.getNivel() / 
+				(this.getNivel() + contrincante.getNivel());
+	}
+	
 	public void pelear(Unidad contrincante){
 		
-		double misProbabilidadesDeGanar = (double) this.getNivel() / 
-		(this.getNivel() + contrincante.getNivel());
 		
-		
-		if (misProbabilidadesDeGanar >= Math.random()){
+		if (this.probabilidadDeGanar(contrincante) >= contrincante.probabilidadDeGanar(this)){
 			this.ganarPelea();
 			contrincante.morir();
 		}else{
