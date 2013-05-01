@@ -13,7 +13,7 @@ public class Castillo {
 	private final List<Integer> DESTINOS = new ArrayList<Integer>();
 	
 	public Castillo(int bando, int id) {
-		
+		DESTINOS.add(id);
 		BANDO = bando;
 		FLAG_CASTILLO = bando;
 		ID_CITY = id;
@@ -23,15 +23,32 @@ public class Castillo {
 		new Thread() {
 			public void run() {
 				
-				Channel<Integer> unidadNueva = new Channel<Integer>(FLAG_CASTILLO);
+				Channel<Unidad> unidadNueva = new Channel<Unidad>(FLAG_CASTILLO);
 				
 				while(true) {
-					unidadNueva.receive();
-					Unidad nuevaUnidad = new Unidad(BANDO);
-					nuevaUnidad.viajar(ID_CITY, DESTINOS);
+					Unidad unidad = unidadNueva.receive();
+					
+					System.out.println("ENTRA UNIDAD"+ unidad.getNivel());
+					
+					// mandarla primero a la arena del lugar
+					unidad.viajar(ID_CITY, DESTINOS);
 				}
 			}
 		}.start();
 		
 	}
+	
+	public int getBANDO() {
+		return BANDO;
+	}
+	
+	public static void main(String[] args) {
+		Castillo castillo = new Castillo(1, 1);
+		
+		Channel<Unidad> unidadNueva = new Channel<Unidad>(castillo.FLAG_CASTILLO);
+		
+		unidadNueva.send(new Unidad(castillo.getBANDO()));
+		unidadNueva.send(new Unidad(castillo.getBANDO()));
+	}
+
 }

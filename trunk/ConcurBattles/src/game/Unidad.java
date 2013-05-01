@@ -5,7 +5,7 @@ import java.util.List;
 
 import channel.Channel;
 
-public class Unidad implements Serializable{
+public class Unidad implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private int bando;
@@ -45,14 +45,25 @@ public class Unidad implements Serializable{
 	 * @param caminos
 	 */
 	public void viajar(Integer idActual, List<Integer> caminos) {
-		// Elegir un camino random, crear el canal correspondiente y mandarse
-		Integer ciudadDestino = caminos.get((int) Math.floor(Math.random() * caminos.size()));
-		
-		int idCamino = getIdCamino(idActual, ciudadDestino);
-		
-		Channel<Unidad> camino = new Channel<Unidad>(idCamino);
-		
-		camino.send(this);
+		if(! caminos.isEmpty()) {
+			// Elegir un camino random, crear el canal correspondiente y mandarse
+			Integer ciudadDestino = caminos.get((int) Math.floor(Math.random() * caminos.size()));
+			
+			//int idCamino = getIdCamino(idActual, ciudadDestino);
+			
+			//Channel<Unidad> camino = new Channel<Unidad>(idCamino);
+			
+			
+			/////////////// TO TESTING ////////////////////
+			// Para testear voy directo a la ciudad
+			Channel<Unidad> camino = new Channel<Unidad>(ciudadDestino);
+			// Le subo el nivel cada vez que sale de viaje
+			this.nivel++;
+			//////////////////////////////////////////////
+			
+			
+			camino.send(this);
+		}
 	}
 	
 	/**
@@ -81,12 +92,12 @@ public class Unidad implements Serializable{
 	}
 	
 	/**
-	 * Si mi nivel es mayor a 1, notifico a mi castillo,
-	 * para que cree una nueva unidad
+	 * Si mi nivel es mayor a 1, le mando a mi castillo,
+	 * para que agregue una nueva unidad
 	 */
 	private void morir() {
 		if(this.getNivel() > 1) {
-			(new Channel<Integer>(this.getBando())).send(1);
+			(new Channel<Unidad>(this.getBando())).send(new Unidad(this.getBando()));
 		}
 	}
 	
