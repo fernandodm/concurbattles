@@ -1,7 +1,5 @@
 package game;
 
-import game.Unidad;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -18,24 +16,34 @@ public class Unidad implements Serializable{
 		this.setBando(bando);
 	}
 	
-	public double probabilidadDeGanar(Unidad contrincante){
-		
-		return  (double) this.getNivel() / 
-				(this.getNivel() + contrincante.getNivel());
-	}
-	
+	/**
+	 * Si el contrincante es de otro bando,
+	 * se pelea usando el algoritmo de probabilidades
+	 * @param contrincante
+	 */
 	public void pelear(Unidad contrincante){
-		
-		
-		if (this.probabilidadDeGanar(contrincante) >= contrincante.probabilidadDeGanar(this)){
-			this.ganarPelea();
-			contrincante.morir();
-		}else{
-			contrincante.ganarPelea();
-			this.morir();
+		// Si son de distinto bando se pelean
+		if(contrincante.getBando() != this.getBando()) {
+			
+			double misProbabilidadesDeGanar = (double) this.getNivel() / 
+			(this.getNivel() + contrincante.getNivel());
+			
+			if (misProbabilidadesDeGanar >= Math.random()){
+				this.ganarPelea();
+				contrincante.morir();
+			}else{
+				contrincante.ganarPelea();
+				this.morir();
+			}
 		}
 	}
 	
+	/**
+	 * Elijo un camino random y me mando por ese canal
+	 * ¿como sabe el canal a que ciudad sacarme desp?
+	 * @param idActual
+	 * @param caminos
+	 */
 	public void viajar(Integer idActual, List<Integer> caminos) {
 		// Elegir un camino random, crear el canal correspondiente y mandarse
 		Integer ciudadDestino = caminos.get((int) Math.floor(Math.random() * caminos.size()));
@@ -47,6 +55,11 @@ public class Unidad implements Serializable{
 		camino.send(this);
 	}
 	
+	/**
+	 * @param ID_1 de una ciudad/castillo
+	 * @param ID_2 de otra ciudad/castillo
+	 * @return el id del camino que comunica las ciudades
+	 */
 	public Integer getIdCamino(Integer ID_1, Integer ID_2) {
 		if(ID_1 < ID_2) {
 			return new Integer(ID_1.toString() + ID_2.toString());
