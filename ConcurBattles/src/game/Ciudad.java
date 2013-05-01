@@ -20,12 +20,13 @@ public class Ciudad {
 			public void run() {
 				
 				Channel<Unidad> unidadNueva = new Channel<Unidad>(ID_CITY);
-				
+				Channel<Unidad> enviarAlCastillo = new Channel<Unidad>(getBANDO());
 				while(true) {
 					Unidad unidad = unidadNueva.receive();
 					
 					if(getUNIDADES().isEmpty()){
 						setBANDO(unidad.getBando());
+						enviarAlCastillo.send(new Unidad(getBANDO()));
 						UNIDADES.add(unidad);
 						try {
 							Thread.sleep(10);
