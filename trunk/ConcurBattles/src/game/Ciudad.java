@@ -24,10 +24,23 @@ public class Ciudad {
 				while(true) {
 					Unidad unidad = unidadNueva.receive();
 					
-					System.out.println("ENTRA UNIDAD al castillo "+BANDO + " UNIDAD lvl: "+ unidad.getNivel());
+					if(getUNIDADES().isEmpty()){
+						setBANDO(unidad.getBando());
+						UNIDADES.add(unidad);
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						UNIDADES.remove(unidad);
+						unidad.viajar(ID_CITY, DESTINOS);
+					}else{
+						
+					}
+					//System.out.println("ENTRA UNIDAD al castillo "+BANDO + " UNIDAD lvl: "+ unidad.getNivel());
 					
 					// mandarla primero a la arena del lugar
-					unidad.viajar(ID_CITY, DESTINOS);
 				}
 			}
 		}.start();
