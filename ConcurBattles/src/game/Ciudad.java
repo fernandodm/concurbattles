@@ -10,12 +10,11 @@ public class Ciudad {
 	private final int ID_CITY;
 	private int BANDO;
 	private List<Unidad> UNIDADES = new ArrayList<Unidad>();
-	private final List<Integer> DESTINOS = new ArrayList<Integer>();
+	private final List<Integer> DESTINOS;
 	
-	//falta pasarle como parametro los destinos
-	public Ciudad(int id){
+	public Ciudad(int id, List<Integer> destinos){
 		ID_CITY = id;
-		
+		DESTINOS = destinos;
 		
 		new Thread() {
 			public void run() {
