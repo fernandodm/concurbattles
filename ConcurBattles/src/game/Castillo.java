@@ -10,10 +10,10 @@ public class Castillo {
 	private final int ID_CITY;
 	private final int FLAG_CASTILLO;
 	private final int BANDO;
-	private final List<Integer> DESTINOS = new ArrayList<Integer>();
+	private List<Integer> DESTINOS;
 	
-	public Castillo(int bando, int id) {
-		DESTINOS.add(id);
+	public Castillo(int bando, int id, List<Integer> destinos) {
+		this.setDestinos(destinos);
 		BANDO = bando;
 		FLAG_CASTILLO = bando;
 		ID_CITY = id;
@@ -28,7 +28,7 @@ public class Castillo {
 				while(true) {
 					Unidad unidad = unidadNueva.receive();
 					
-					System.out.println("ENTRA UNIDAD"+ unidad.getNivel());
+					System.out.println("ENTRA UNIDAD al castillo "+BANDO + " UNIDAD lvl: "+ unidad.getNivel());
 					
 					// mandarla primero a la arena del lugar
 					unidad.viajar(ID_CITY, DESTINOS);
@@ -42,8 +42,18 @@ public class Castillo {
 		return BANDO;
 	}
 	
+	public void setDestinos(List<Integer> destinos) {
+		this.DESTINOS = destinos;
+	}
+	
 	public static void main(String[] args) {
-		Castillo castillo = new Castillo(1, 1);
+		List<Integer> destinosC1 = new ArrayList<Integer>(1);
+		destinosC1.add(2);
+		Castillo castillo = new Castillo(1, 1, destinosC1);
+		
+		List<Integer> destinosC2 = new ArrayList<Integer>(1);
+		destinosC2.add(1);
+		new Castillo(2, 2, destinosC2);
 		
 		Channel<Unidad> unidadNueva = new Channel<Unidad>(castillo.FLAG_CASTILLO);
 		
