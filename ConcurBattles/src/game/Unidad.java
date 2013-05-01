@@ -80,7 +80,14 @@ public class Unidad implements Serializable{
 		}
 	}
 	
+	/**
+	 * Si mi nivel es mayor a 1, notifico a mi castillo,
+	 * para que cree una nueva unidad
+	 */
 	private void morir() {
+		if(this.getNivel() > 1) {
+			(new Channel<Integer>(this.getBando())).send(1);
+		}
 	}
 	
 	/**
