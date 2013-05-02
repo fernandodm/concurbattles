@@ -11,6 +11,7 @@ public class Unidad implements Serializable {
 	private int bando;
 	private int nivel = 1;
 	private int batallasGanadas = 1;
+	private int id;
 	
 	public Unidad(int bando) {
 		this.setBando(bando);
@@ -144,5 +145,14 @@ public class Unidad implements Serializable {
 	public void setBatallasGanadas(int batallasGanadas) {
 		this.batallasGanadas = batallasGanadas;
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	
 
 }
