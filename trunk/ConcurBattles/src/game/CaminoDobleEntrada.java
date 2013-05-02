@@ -107,7 +107,9 @@ private final int ID_PATH;
 						}else{
 							
 						}
-							
+							//TODO
+						
+						//ENVIAR A CIUDAD EFECTIVAMENTE
 							System.out.println("Unidad " +  viajero.getId() + " de bando  "+viajero.getBando()+ "enviada a ciudad.");
 				        arenaPermiso.send(1);
 						
