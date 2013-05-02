@@ -21,32 +21,21 @@ public class Ciudad {
 				
 				Channel<Unidad> unidadNueva = new Channel<Unidad>(ID_CITY);
 				Channel<Unidad> enviarAlCastillo = new Channel<Unidad>(getBANDO());
+				Channel<Unidad> enviarALaArena = new Channel<Unidad>(ID_CITY + 100);
+				
 				while(true) {
 					Unidad unidad = unidadNueva.receive();
 					
 					if(getUNIDADES().isEmpty()){
 						setBANDO(unidad.getBando());
 						enviarAlCastillo.send(new Unidad(getBANDO()));
-						UNIDADES.add(unidad);
-						try {
-							Thread.sleep(10);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						UNIDADES.remove(unidad);
-						unidad.viajar(ID_CITY, DESTINOS);
-					}else{
-						
+						enviarALaArena.send(unidad);
 					}
-					//System.out.println("ENTRA UNIDAD al castillo "+BANDO + " UNIDAD lvl: "+ unidad.getNivel());
-					
-					// mandarla primero a la arena del lugar
 				}
 			}
+	
 		}.start();
 	}
-	
 	
 	public List<Integer> getDESTINOS() {
 		return DESTINOS;
