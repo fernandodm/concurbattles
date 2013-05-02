@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 
 /** This class acts like a interprocess communication channel for Object passing. */
@@ -43,6 +44,7 @@ public class Channel<T extends Serializable> {
 	public Channel(int id, boolean synchronous) {
 		if (id < 0 || id > 10000)
 			throw new RuntimeException("Channel id " + id + " out of bounds (0 - 10000)");
+		this.synchronous = synchronous;
 		try {
 			server = new ChannelServer(id + 10000, synchronous);
 			server.start();
@@ -51,6 +53,23 @@ public class Channel<T extends Serializable> {
 			socket = new Socket("localhost", id + 10000);
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			inputStream = new ObjectInputStream(socket.getInputStream());
+			input = new LinkedList<Serializable>();
+			acks = new Semaphore(0);
+			new Thread() {
+				public void run() {
+					try {
+						while (true) {
+							ChannelRequest request = (ChannelRequest)inputStream.readObject();
+							if (request.option == ChannelRequest.RequestOption.ACK)
+								acks.release();
+							else
+								push(request.serializable);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {}
+				};
+			}.start();
 		} catch (IOException e) {
 			throw new RuntimeException("Error creating channel " + id);
 		}
@@ -67,14 +86,16 @@ public class Channel<T extends Serializable> {
 		ChannelRequest request = new ChannelRequest(
 			ChannelRequest.RequestOption.PUT, object);
 		try {
-			outputStream.writeObject(request);
-			outputStream.flush();
-			outputStream.reset();
+			synchronized (this) {
+				outputStream.writeObject(request);
+				outputStream.flush();
+				outputStream.reset();
+			}
 			if (synchronous)
-				inputStream.readObject();
+				acks.acquireUninterruptibly();
 		} catch (IOException e) {
 			throw new RuntimeException("Error while sending message");
-		} catch (ClassNotFoundException e) {}
+		}
 	}
 	
 	
@@ -91,33 +112,60 @@ public class Channel<T extends Serializable> {
 			ChannelRequest.RequestOption.GET, null);
 		T result = null;
 		try {
-			outputStream.writeObject(request);
-			outputStream.flush();
-			outputStream.reset();
-			result = (T)inputStream.readObject();
+			synchronized (this) {
+				outputStream.writeObject(request);
+				outputStream.flush();
+				outputStream.reset();
+			}
+			result = (T)pop();
 		} catch (Exception e) {
 			throw new RuntimeException("Error while receiving object");
 		}
 		return result;
 	}
-
 	
-	/** Main function that creates a process to manage a given channel.*/
-	public static void main(String[] args) {
-		if (args.length == 0)
-			System.err.println("Error the channel id is required (0 - 10000).");
-		try { new Channel<Serializable>(Integer.parseInt(args[0])); }
-		catch (NumberFormatException e) {
-			System.err.println("Error: invalid channel id " + args[0]);
+	
+	/** Removes the first pending message of the input buffer.
+	  * Blocks if the buffer is empty until a message is sent.
+	  *
+	  * @return the first message of the buffer. 
+	  */
+	private synchronized Serializable pop() {
+		while (input.isEmpty()) {
+			try { wait(); }
+			catch (InterruptedException e) { e.printStackTrace(); }
 		}
+		return input.remove(0);
+	}
+	
+	
+	/** Enqueues a new message object to the input buffer.
+	 * 
+	 * @param serializable a Serializable object that will be added to the
+	 *  server buffer.
+	 */
+	private synchronized void push(Serializable serializable) {
+		input.add(serializable);
+		notify();
+	}
+	
+	
+	/** Performs necessary housekeeping. */
+	@Override
+	protected void finalize() throws Throwable {
+		try { inputStream.close(); } catch (IOException e) {}
+		try { outputStream.close(); } catch (IOException e) {}
+		super.finalize();
 	}
 	
 
 	private ChannelServer server;            /** Server thread if this was build first. */
 	private Socket socket;                   /** Socket to communicate through. */
-	private ObjectInputStream inputStream;   /** The socket object input stream. */
 	private ObjectOutputStream outputStream; /** The socket object output stream. */
-	private boolean synchronous;             /** Indicates if this channel is synchronous. */
+	private ObjectInputStream inputStream;   /** The socket object input stream. */
+	private List<Serializable> input;        /** Buffer with input messages. */
+	private Semaphore acks;                  /** Semaphore with acknowledgments. */
+	private boolean synchronous;            /** Indicates if this channel is synchronous. */
 	
 
 	
@@ -139,10 +187,10 @@ public class Channel<T extends Serializable> {
 	private static class ChannelServer extends Thread {
 
 		private ServerSocket serverSocket;           /** Socket to accept new connections. */
-		private List<Serializable> buffer;           /** Buffer of transmitted elements. */
+		private List<ChannelRequest> buffer;         /** Buffer of transmitted elements. */
 		private List<ObjectOutputStream> pendingAck; /** Pending acknowledgments if synchronous. */
 		private List<ChannelClient> clients;         /** One thread to manage each connected process. */
-		private boolean synchronous;                 /** Indicates if the channel is synchronous. */
+		private boolean synchronous;                /** Indicates if the channel is synchronous. */
 		
 		
 		/** Constructor for a ChannelServer.
@@ -155,8 +203,9 @@ public class Channel<T extends Serializable> {
 		  */
 		public ChannelServer(int id, boolean synchronous) throws IOException {
 			this.serverSocket = new ServerSocket(id);
-			this.buffer = new LinkedList<Serializable>();
+			this.buffer = new LinkedList<ChannelRequest>();
 			this.clients = new LinkedList<ChannelClient>();
+			this.pendingAck = new LinkedList<ObjectOutputStream>();
 			this.synchronous = synchronous;
 		}
 		
@@ -194,7 +243,7 @@ public class Channel<T extends Serializable> {
 		 * @param serializable a Serializable object that will be added to the
 		 *  server buffer.
 		 */
-		public synchronized void push(Serializable serializable) {
+		public synchronized void push(ChannelRequest serializable) {
 			buffer.add(serializable);
 			notify();
 		}
@@ -246,33 +295,46 @@ public class Channel<T extends Serializable> {
 		@Override
 		public void run() {
 			try {
-				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+				final ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+				final ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+				final Semaphore get = new Semaphore(0, true);
+				
+				new Thread() {
+					public void run() {
+						get.acquireUninterruptibly();
+						while (true) {
+							synchronized (server) {
+								try {
+									oos.writeObject(server.pop());
+									oos.flush();
+									oos.reset();
+									if (server.synchronous) {
+										server.popPending().writeObject(new ChannelRequest(
+											ChannelRequest.RequestOption.ACK, null));
+									}
+								} catch (IOException e) {}
+							}
+						}
+					}
+				}.start();
+				
 				while (true) {
 					try {
 						ChannelRequest request = (ChannelRequest)ois.readObject();
 						switch (request.option) {
 							case GET:
-								synchronized (server) {
-									oos.writeObject(server.pop());
-									oos.flush();
-									oos.reset();
-									if (server.synchronous)
-										server.popPending().writeObject(new ChannelRequest(
-											ChannelRequest.RequestOption.ACK, null));
-								}
+								get.release();
 								break;
 							case PUT:
 								synchronized (server) {
-									server.push(request.serializable);
+									server.push(request);
 									if (server.synchronous)
 										server.pushPending(oos);
 								}
 								break;
+							default:
 						}
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					}
+					} catch (ClassNotFoundException e) {}
 				}
 			} catch (IOException e) {
 				synchronized (server.clients) {
@@ -282,6 +344,5 @@ public class Channel<T extends Serializable> {
 		}
 		
 	}
-	
 	
 }
