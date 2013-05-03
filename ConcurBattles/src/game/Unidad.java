@@ -12,9 +12,25 @@ public class Unidad implements Serializable {
 	private int nivel = 1;
 	private int batallasGanadas = 1;
 	private int id;
-	
+	private boolean estoyVivo;
+
 	public Unidad(int bando) {
 		this.setBando(bando);
+		this.setEstoyVivo(true);
+		new Thread(){
+			//ir elgiendo camino.
+			/*
+			 * 
+			 * while (estoyVivo()){
+			 * 
+			 * 		elegirCiudad()
+			 *       
+			 * 
+			 * }
+			 * 
+			 * 
+			 */
+		};
 	}
 	
 	/**
@@ -100,6 +116,7 @@ public class Unidad implements Serializable {
 		if(this.getNivel() > 1) {
 			(new Channel<Unidad>(this.getBando())).send(new Unidad(this.getBando()));
 		}
+		this.setEstoyVivo(false);
 	}
 	
 	/**
@@ -154,5 +171,14 @@ public class Unidad implements Serializable {
 		this.id = id;
 	}
 	
+	
+	public boolean isEstoyVivo() {
+		return estoyVivo;
+	}
+
+	public void setEstoyVivo(boolean estoyVivo) {
+		this.estoyVivo = estoyVivo;
+	}
+
 
 }
