@@ -15,6 +15,7 @@ private final int ID_PATH;
 	private final int ID_CITY2;
 	private final LinkedList<Unidad> viajerosLado1 = new LinkedList<Unidad>();
 	private final LinkedList<Unidad> viajerosLado2 = new LinkedList<Unidad>();
+	private static Integer idIncremental = 1;
 	//private final Unidad viajeroLado1 = null;
 	//private final Unidad viajeroLado2 = null;
 	/*
@@ -23,23 +24,23 @@ private final int ID_PATH;
 	 */
 	
 	/**
-	 * Constructor de camino.El primero parametro, el id del mismo, servirapara identificar por protocolo 
-	 * los canales  de arena. El segundo parametro siempre tendra que ser la ciudad con id mas chico que se conecta
+	 *  El segundo parametro siempre tendra que ser la ciudad con id mas chico que se conecta
 	 * la cual representara el "extremo 1"  , pro el contrario, el segundo parametro corresponde a la otra ciudad
 	 * que siempre sera la del id mas alto. 
 	 * 
 	 * Notar que los canales de permiso de acceso y entrada se calculan por protocolo
 	 * 
-	 * @param id
+	 * 
 	 * @param idcity1
 	 * @param idcity2
 	 */
-	public CaminoDobleEntrada(int id, int idcity1, int idcity2){
-		
-		ID_PATH = id;
+	public CaminoDobleEntrada( int idcity1, int idcity2){
+		 
+		ID_PATH = idIncremental;
 		ID_CITY1 = idcity1;
 		ID_CITY2 = idcity2;
 		
+		idIncremental ++;
 		final Channel<Integer> permisoLado1 = new Channel<Integer>(idcity1+idcity2+1000);
 		final Channel<Integer> permisoLado2 = new Channel<Integer>(idcity1+idcity2+2000);
 		final Channel<Unidad> entradaLado1 = new Channel<Unidad>(idcity1+idcity2+3000);
@@ -49,7 +50,7 @@ private final int ID_PATH;
 		final Channel<Unidad> arenaPath = new Channel<Unidad>(ID_PATH+500);
 		final Channel<Integer> arenaPermiso = new Channel<Integer>(ID_PATH+600);
 		
-		System.out.println("Camino "+id+ " conectando ciudades " + idcity1 + " y " +idcity2  + " generado");
+		System.out.println("Camino "+ID_PATH+ " conectando ciudades " + idcity1 + " y " +idcity2  + " generado");
 		
 		new Thread() {
 			public void run() {
