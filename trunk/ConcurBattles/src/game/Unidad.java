@@ -13,6 +13,7 @@ public class Unidad implements Serializable {
 	private int batallasGanadas = 1;
 	private int id;
 	private boolean estoyVivo;
+	private Channel<String> canalDePermiso;
 
 	public Unidad(int bando) {
 		this.setBando(bando);
@@ -22,9 +23,10 @@ public class Unidad implements Serializable {
 			/*
 			 * 
 			 * while (estoyVivo()){
-			 * 
+			 * 		
+			 * 		canalDePermiso = null
 			 * 		elegirCiudad()
-			 *       
+			 *      permiso.receive() 
 			 * 
 			 * }
 			 * 
@@ -33,6 +35,7 @@ public class Unidad implements Serializable {
 		};
 	}
 	
+
 	/**
 	 * Si el contrincante es de otro bando,
 	 * se pelea usando el algoritmo de probabilidades
@@ -180,5 +183,12 @@ public class Unidad implements Serializable {
 		this.estoyVivo = estoyVivo;
 	}
 
+	public Channel<String> getCanalDePermiso() {
+		return canalDePermiso;
+	}
+
+	public void setCanalDePermiso(Channel<String> canalDePermiso) {
+		this.canalDePermiso = canalDePermiso;
+	}
 
 }

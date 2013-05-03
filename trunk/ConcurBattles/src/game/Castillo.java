@@ -1,7 +1,9 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import channel.Channel;
 
@@ -12,30 +14,98 @@ public class Castillo {
 	private final int BANDO;
 	private List<Integer> DESTINOS;
 	
+	Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
+	Channel<String> msj = new Channel<String>(GeneradorDeCanal.generarNumeroDeCanal());
+	Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarOtroNumeroDeCanal());
+	Channel<String> permiso = new Channel<String>(GeneradorDeCanal.generarPermiso());
+	
+	
 	public Castillo(int bando, int id, List<Integer> destinos) {
 		this.setDestinos(destinos);
 		BANDO = bando;
 		FLAG_CASTILLO = bando;
 		ID_CITY = id;
 		
+		Channel<Unidad> unidadNueva = new Channel<Unidad>(FLAG_CASTILLO);
+		unidadNueva.send(new Unidad(getBANDO()));
+		
 		// Espera que le avisen cuando crear una nueva unidad porque
 		// conquistó una nueva ciudad o se murió una unidad de lvl mayor a 1
-		new Thread() {
-			public void run() {
+		new Thread(){
+			public void run(){
 				
-				Channel<Unidad> unidadNueva = new Channel<Unidad>(FLAG_CASTILLO);
+				Set<Unidad> unidades = new HashSet<Unidad>();
+				permisoEspecial.send("permiso");
+				boolean elJuegoSigue = true;
+				while(elJuegoSigue){
 				
-				while(true) {
-					Unidad unidad = unidadNueva.receive();
-					
-					System.out.println("ENTRA UNIDAD al castillo "+BANDO + " UNIDAD lvl: "+ unidad.getNivel());
-					
-					// mandarla primero a la arena del lugar
-					unidad.viajar(ID_CITY, DESTINOS);
+					Unidad unidad = enviarALaArena.receive();
+					if(msj.equals("agregar")){
+						
+						if(!unidades.isEmpty()){
+							
+							while(hayUnidadContrariaDe(unidad.getBando(), unidades)){
+								
+								for(Unidad each : unidades){
+									
+									if(each.getBando() != unidad.getBando()){
+										unidad.pelear(each);
+										
+										if(!unidad.isEstoyVivo()){
+											
+											unidad = each;
+																								
+										}else{
+											unidades.remove(each);
+										}
+									}
+								}
+							}
+							if(getBANDO() != unidad.getBando()){
+								elJuegoSigue = false;
+							}else{
+								unidades.add(unidad);
+							}
+						}else{
+							if(getBANDO() != unidad.getBando()){
+								elJuegoSigue = false;
+							}else{
+								unidades.add(unidad);
+							}
+						}
+					}else{
+						if(msj.equals("sacar")){
+							unidades.remove(unidad);
+						}
+					}
+				permiso.send("permiso");	
 				}
 			}
+			
 		}.start();
 		
+		while(true) {
+			
+			Unidad unidad = unidadNueva.receive();
+			unidad.setCanalDePermiso(permiso);
+			msj.send("agregar");
+			enviarALaArena.send(unidad);
+			permiso.receive();
+			
+		}
+		
+	}
+	
+	public boolean hayUnidadContrariaDe(int unBando, Set<Unidad> lista){
+		
+		boolean hayUnidad = false;
+		for (Unidad each : lista) {
+			if(each.getBando() == unBando){
+				hayUnidad = true;
+				return hayUnidad;
+			}
+		}		
+		return hayUnidad;
 	}
 	
 	public int getBANDO() {
