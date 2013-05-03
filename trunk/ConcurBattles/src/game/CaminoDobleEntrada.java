@@ -22,7 +22,18 @@ private final int ID_PATH;
 	 *
 	 */
 	
-	
+	/**
+	 * Constructor de camino.El primero parametro, el id del mismo, servirapara identificar por protocolo 
+	 * los canales  de arena. El segundo parametro siempre tendra que ser la ciudad con id mas chico que se conecta
+	 * la cual representara el "extremo 1"  , pro el contrario, el segundo parametro corresponde a la otra ciudad
+	 * que siempre sera la del id mas alto. 
+	 * 
+	 * Notar que los canales de permiso de acceso y entrada se calculan por protocolo
+	 * 
+	 * @param id
+	 * @param idcity1
+	 * @param idcity2
+	 */
 	public CaminoDobleEntrada(int id, int idcity1, int idcity2){
 		
 		ID_PATH = id;
@@ -177,7 +188,8 @@ private final int ID_PATH;
 						e.printStackTrace();
 					}
 					Unidad u1 = new Unidad(1);
-					u1.setId(idB1);
+					
+					u1.setId(Integer.toString(idB1));
 					System.out.println("Nueva Unidad numero "+ u1.getId() +" del bando " + u1.getBando() );
 					permisoLado1.receive(); // Cuando la unidad quiera viajar, solicitara el permiso del camino.
 					entradaLado1.send(u1);
@@ -201,7 +213,7 @@ private final int ID_PATH;
 								e.printStackTrace();
 							}
 							Unidad u2 = new Unidad(2);
-							u2.setId(idB2);
+							u2.setId(Integer.toString(idB2));;
 							System.out.println("Nueva Unidad numero "+ u2.getId() +" del bando " + u2.getBando() );
 							permisoLado2.receive();
 							entradaLado2.send(u2);
@@ -215,7 +227,7 @@ private final int ID_PATH;
 				new Thread(){
 					public void run(){
 						Unidad u3 = new Unidad(3);
-						u3.setId(1);
+						//u3.setId(1);
 						while(true){
 							
 							
