@@ -12,29 +12,82 @@ public class Ciudad {
 	private List<Unidad> UNIDADES = new ArrayList<Unidad>();
 	private final List<Integer> DESTINOS;
 	
+	Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
+	Channel<String> msj = new Channel<String>(GeneradorDeCanal.generarNumeroDeCanal());
+	Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarOtroNumeroDeCanal());
+	Channel<String> permiso = new Channel<String>(GeneradorDeCanal.generarPermiso());
+	Channel<Unidad> enviarAlCastillo = new Channel<Unidad>(getBANDO());
+	
 	public Ciudad(int id, List<Integer> destinos){
 		ID_CITY = id;
 		DESTINOS = destinos;
-		
-		new Thread() {
-			public void run() {
-				
+	
 				Channel<Unidad> unidadNueva = new Channel<Unidad>(ID_CITY);
-				Channel<Unidad> enviarAlCastillo = new Channel<Unidad>(getBANDO());
-				Channel<Unidad> enviarALaArena = new Channel<Unidad>(ID_CITY + 100);
+				
+				new Thread(){
+					public void run(){
+						
+						List<Unidad> unidades = new ArrayList<Unidad>();
+						permisoEspecial.send("permiso");
+						while(true){
+						
+							Unidad unidad = enviarALaArena.receive();
+							if(msj.equals("agregar")){
+								if(!unidades.isEmpty()){
+									while(hayUnidadContrariaDe(unidad.getBando(), unidades)){
+										for(Unidad each : unidades){
+											if(each.getBando() != unidad.getBando()){
+												unidad.pelear(each);
+												//unidades.remove(recibir unidad perdedora);
+												//unidad = recibir unidad ganadora
+											}
+										}
+									}
+								unidades.add(unidad);
+									if(getBANDO() != unidad.getBando()){
+										enviarAlCastillo.send(new Unidad(getBANDO()));
+										setBANDO(unidad.getBando());
+									}
+								}else{
+									unidades.add(unidad);
+									setBANDO(unidad.getBando());
+									enviarAlCastillo.send(new Unidad(getBANDO()));
+								}
+							}else{
+								if(msj.equals("sacar")){
+									unidades.remove(unidad);
+								}
+							}
+						permiso.send("permiso");	
+						}
+					}
+					
+				}.start();
+				
+				permisoEspecial.receive(); //recibe un permiso de la arena
 				
 				while(true) {
-					Unidad unidad = unidadNueva.receive();
 					
-					if(getUNIDADES().isEmpty()){
-						setBANDO(unidad.getBando());
-						enviarAlCastillo.send(new Unidad(getBANDO()));
-						enviarALaArena.send(unidad);
-					}
+					Unidad unidad = unidadNueva.receive();
+					msj.send("agregar");
+					enviarALaArena.send(unidad);
+					permiso.receive();
+					
 				}
+				
+				
 			}
 	
-		}.start();
+	public boolean hayUnidadContrariaDe(int unBando, List<Unidad> lista){
+		
+		boolean hayUnidad = false;
+		for (Unidad each : lista) {
+			if(each.getBando() == unBando){
+				hayUnidad = true;
+				return hayUnidad;
+			}
+		}		
+		return hayUnidad;
 	}
 	
 	public List<Integer> getDESTINOS() {
