@@ -17,16 +17,15 @@ public class Castillo {
 	Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
 	Channel<String> msj = new Channel<String>(GeneradorDeCanal.generarNumeroDeCanal());
 	Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarOtroNumeroDeCanal());
-	Channel<String> permiso = new Channel<String>(GeneradorDeCanal.generarPermiso());
-	
+	Channel<String> permiso = new Channel<String>(GeneradorDeCanal.generarPermiso());	
 	
 	public Castillo(int bando, int id, List<Integer> destinos) {
-		this.setDestinos(destinos);
+		this.setDESTINOS(destinos);
 		BANDO = bando;
 		FLAG_CASTILLO = bando;
 		ID_CITY = id;
 		
-		Channel<Unidad> unidadNueva = new Channel<Unidad>(FLAG_CASTILLO);
+		final Channel<Unidad> unidadNueva = new Channel<Unidad>(FLAG_CASTILLO);
 		unidadNueva.send(new Unidad(getBANDO()));
 		
 		// Espera que le avisen cuando crear una nueva unidad porque
@@ -36,8 +35,8 @@ public class Castillo {
 				
 				Set<Unidad> unidades = new HashSet<Unidad>();
 				permisoEspecial.send("permiso");
-				boolean elJuegoSigue = true;
-				while(elJuegoSigue){
+
+				while(! Juego.gameOver()){
 				
 					Unidad unidad = enviarALaArena.receive();
 					if(msj.equals("agregar")){
@@ -62,13 +61,13 @@ public class Castillo {
 								}
 							}
 							if(getBANDO() != unidad.getBando()){
-								elJuegoSigue = false;
+								Juego.setGameOver(true);
 							}else{
 								unidades.add(unidad);
 							}
 						}else{
 							if(getBANDO() != unidad.getBando()){
-								elJuegoSigue = false;
+								Juego.setGameOver(true);
 							}else{
 								unidades.add(unidad);
 							}
@@ -76,6 +75,8 @@ public class Castillo {
 					}else{
 						if(msj.equals("sacar")){
 							unidades.remove(unidad);
+							unidad.setCanalDePermiso(null);
+							unidad.viajar(getID_CITY(), getDESTINOS());
 						}
 					}
 				permiso.send("permiso");	
@@ -84,16 +85,21 @@ public class Castillo {
 			
 		}.start();
 		
-		while(true) {
-			
-			Unidad unidad = unidadNueva.receive();
-			unidad.setCanalDePermiso(permiso);
-			msj.send("agregar");
-			enviarALaArena.send(unidad);
-			permiso.receive();
-			
-		}
-		
+		new Thread() {
+			public void run() {
+				
+				while(! Juego.gameOver()) {
+					
+					Unidad unidad = unidadNueva.receive();
+					unidad.setCanalDePermiso(permiso);
+					unidad.setMsj(msj);
+					msj.send("agregar");
+					enviarALaArena.send(unidad);
+					permiso.receive();
+					
+				}				
+			}
+		}.start();
 	}
 	
 	public boolean hayUnidadContrariaDe(int unBando, Set<Unidad> lista){
@@ -112,8 +118,16 @@ public class Castillo {
 		return BANDO;
 	}
 	
-	public void setDestinos(List<Integer> destinos) {
+	public int getID_CITY() {
+		return ID_CITY;
+	}
+	
+	public void setDESTINOS(List<Integer> destinos) {
 		this.DESTINOS = destinos;
+	}
+	
+	public List<Integer> getDESTINOS() {
+		return this.DESTINOS;
 	}
 	
 	public static void main(String[] args) {

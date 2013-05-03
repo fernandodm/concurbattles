@@ -1,6 +1,5 @@
 package game;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +11,6 @@ public class Ciudad {
 	
 	private final int ID_CITY;
 	private int BANDO;
-	private List<Unidad> UNIDADES = new ArrayList<Unidad>();
 	private final List<Integer> DESTINOS;
 	
 	Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
@@ -25,72 +23,77 @@ public class Ciudad {
 		ID_CITY = id;
 		DESTINOS = destinos;
 	
-				Channel<Unidad> unidadNueva = new Channel<Unidad>(ID_CITY);
+		final Channel<Unidad> unidadNueva = new Channel<Unidad>(ID_CITY);
+		
+		new Thread(){
+			public void run(){
 				
-				new Thread(){
-					public void run(){
+				Set<Unidad> unidades = new HashSet<Unidad>();
+				permisoEspecial.send("permiso");
+				while(! Juego.gameOver()){
+				
+					Unidad unidad = enviarALaArena.receive();
+					if(msj.equals("agregar")){
 						
-						Set<Unidad> unidades = new HashSet<Unidad>();
-						permisoEspecial.send("permiso");
-						while(true){
-						
-							Unidad unidad = enviarALaArena.receive();
-							if(msj.equals("agregar")){
+						if(!unidades.isEmpty()){
+							
+							while(hayUnidadContrariaDe(unidad.getBando(), unidades)){
 								
-								if(!unidades.isEmpty()){
+								for(Unidad each : unidades){
 									
-									while(hayUnidadContrariaDe(unidad.getBando(), unidades)){
+									if(each.getBando() != unidad.getBando()){
+										unidad.pelear(each);
 										
-										for(Unidad each : unidades){
+										if(!unidad.isEstoyVivo()){
 											
-											if(each.getBando() != unidad.getBando()){
-												unidad.pelear(each);
-												
-												if(!unidad.isEstoyVivo()){
-													
-													unidad = each;
-																										
-												}else{
-													unidades.remove(each);
-												}
-											}
+											unidad = each;
+																								
+										}else{
+											unidades.remove(each);
 										}
 									}
-								unidades.add(unidad);
-									if(getBANDO() != unidad.getBando()){
-										enviarAlCastillo.send(new Unidad(getBANDO()));
-										setBANDO(unidad.getBando());
-									}
-								}else{
-									unidades.add(unidad);
-									setBANDO(unidad.getBando());
-									enviarAlCastillo.send(new Unidad(getBANDO()));
-								}
-							}else{
-								if(msj.equals("sacar")){
-									unidades.remove(unidad);
 								}
 							}
-						permiso.send("permiso");	
+						unidades.add(unidad);
+							if(getBANDO() != unidad.getBando()){
+								setBANDO(unidad.getBando());
+								enviarAlCastillo.send(new Unidad(getBANDO()));
+							}
+						}else{
+							unidades.add(unidad);
+							setBANDO(unidad.getBando());
+							enviarAlCastillo.send(new Unidad(getBANDO()));
+						}
+					}else{
+						if(msj.equals("sacar")){
+							unidades.remove(unidad);
+							unidad.setCanalDePermiso(null);
+							unidad.viajar(getID_CITY(), getDESTINOS());
 						}
 					}
-					
-				}.start();
-				
+				permiso.send("permiso");	
+				}
+			}
+			
+		}.start();
+		
+		new Thread() {
+			public void run() {
 				permisoEspecial.receive(); //recibe un permiso de la arena
 				
-				while(true) {
+				while(! Juego.gameOver()) {
 					
 					Unidad unidad = unidadNueva.receive();
 					unidad.setCanalDePermiso(permiso);
+					unidad.setMsj(msj);
 					msj.send("agregar");
 					enviarALaArena.send(unidad);
 					permiso.receive();
 					
-				}
-				
-				
+				}				
 			}
+		}.start();
+	}
 	
 	public boolean hayUnidadContrariaDe(int unBando, Set<Unidad> lista){
 		
@@ -114,12 +117,7 @@ public class Ciudad {
 	public void setBANDO(int bANDO) {
 		BANDO = bANDO;
 	}
-	public List<Unidad> getUNIDADES() {
-		return UNIDADES;
-	}
-	public void setUNIDADES(List<Unidad> uNIDADES) {
-		UNIDADES = uNIDADES;
-	}
+
 	public int getID_CITY() {
 		return ID_CITY;
 	}

@@ -11,30 +11,30 @@ public class Unidad implements Serializable {
 	private int bando;
 	private int nivel = 1;
 	private int batallasGanadas = 1;
-	private int id;
+	private String id;
 	private boolean estoyVivo;
-	private Channel<String> canalDePermiso;
+	private Channel<String> canalDePermiso = null;
+	private Channel<String> msj = null;
+	
+	private static Integer idIncremental = 1;
 
 	public Unidad(int bando) {
+		
+		id = ((bando == 1) ? "g" : "s") + (idIncremental++).toString();
+		
 		this.setBando(bando);
 		this.setEstoyVivo(true);
 		new Thread(){
-			//ir elgiendo camino.
-			/*
-			 * 
-			 * while (estoyVivo()){
-			 * 		
-			 * 		canalDePermiso = null
-			 * 		elegirCiudad()
-			 *      permiso.receive() 
-			 * 
-			 * }
-			 * 
-			 * 
-			 */
+			public void run() {
+				while(!Juego.gameOver()) {
+					if(canalDePermiso != null) {
+						canalDePermiso.receive();
+						msj.send("sacar");	
+					}
+				}	
+			}
 		};
 	}
-	
 
 	/**
 	 * Si el contrincante es de otro bando,
@@ -65,24 +65,29 @@ public class Unidad implements Serializable {
 	 * @param caminos
 	 */
 	public void viajar(Integer idActual, List<Integer> caminos) {
-		if(! caminos.isEmpty()) {
-			// Elegir un camino random, crear el canal correspondiente y mandarse
-			Integer ciudadDestino = caminos.get((int) Math.floor(Math.random() * caminos.size()));
-			
-			//int idCamino = getIdCamino(idActual, ciudadDestino);
-			
-			//Channel<Unidad> camino = new Channel<Unidad>(idCamino);
-			
-			
-			/////////////// TO TESTING ////////////////////
-			// Para testear voy directo a la ciudad
-			Channel<Unidad> camino = new Channel<Unidad>(ciudadDestino);
-			// Le subo el nivel cada vez que sale de viaje
-			this.nivel++;
-			//////////////////////////////////////////////
-			
-			
-			camino.send(this);
+		if(isEstoyVivo()) {
+			if(! caminos.isEmpty()) {
+				// Elegir un camino random, crear el canal correspondiente y mandarse
+				Integer ciudadDestino = caminos.get((int) Math.floor(Math.random() * caminos.size()));
+				
+				int permisoCamino = getPermisoCamino(idActual, ciudadDestino);
+				int accesoCamino = getAccesoCamino(idActual, ciudadDestino);
+				
+				Channel<Unidad> pCamino = new Channel<Unidad>(permisoCamino);
+				Channel<Unidad> aCamino = new Channel<Unidad>(accesoCamino);
+				pCamino.receive();
+				aCamino.send(this);
+				
+				
+				/*
+				/////////////// TO TESTING ////////////////////
+				// Para testear voy directo a la ciudad
+				Channel<Unidad> camino = new Channel<Unidad>(ciudadDestino);
+				// Le subo el nivel cada vez que sale de viaje
+				this.nivel++;
+				//////////////////////////////////////////////
+				*/
+			}
 		}
 	}
 	
@@ -91,12 +96,22 @@ public class Unidad implements Serializable {
 	 * @param ID_2 de otra ciudad/castillo
 	 * @return el id del camino que comunica las ciudades
 	 */
-	public Integer getIdCamino(Integer ID_1, Integer ID_2) {
-		if(ID_1 < ID_2) {
-			return new Integer(ID_1.toString() + ID_2.toString());
+	public Integer getPermisoCamino(Integer ID_1, Integer ID_2) {
+		if(ID_1 > ID_2) {
+			return 2000 + ID_1 + ID_2;
+			//return new Integer(ID_1.toString() + ID_2.toString());
 		}
 		
-		return new Integer(ID_2.toString() + ID_1.toString());
+		return 1000 + ID_1 + ID_2;
+		//return new Integer(ID_2.toString() + ID_1.toString());
+	}
+	
+	public Integer getAccesoCamino(Integer ID_1, Integer ID_2) {
+		if(ID_1 > ID_2) {
+			return 4000 + ID_1 + ID_2;
+		}
+		
+		return 3000 + ID_1 + ID_2;
 	}
 	
 	/**
@@ -166,14 +181,21 @@ public class Unidad implements Serializable {
 		this.batallasGanadas = batallasGanadas;
 	}
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
+	public Channel<String> getMsj() {
+		return msj;
+	}
+
+	public void setMsj(Channel<String> msj) {
+		this.msj = msj;
+	}
 	
 	public boolean isEstoyVivo() {
 		return estoyVivo;
