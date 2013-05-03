@@ -3,7 +3,8 @@ package game;
 import java.io.Serializable;
 import java.util.List;
 
-import channel.Channel;
+// import channel.Channel;
+import ar.edu.unq.tpi.pconc.Channel;
 
 public class Unidad implements Serializable {
 
@@ -79,6 +80,11 @@ public class Unidad implements Serializable {
 				aCamino.send(this);
 				
 				
+				
+				Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
+				notificacionUI.send(this.getId() +" "+ ciudadDestino + "*");
+
+
 				/*
 				/////////////// TO TESTING ////////////////////
 				// Para testear voy directo a la ciudad
