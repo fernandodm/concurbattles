@@ -186,7 +186,7 @@ private final int ID_PATH;
 				}
 			}
 			
-		}.start();
+		};//.start();
 		
 		
 		//thread construccion unidad bando 2 por el lado 2
@@ -209,7 +209,7 @@ private final int ID_PATH;
 						}
 					}
 					
-				}.start();
+				};//.start();
 				
 		//thread de una unidad que viaja todo el tiempo
 				new Thread(){
@@ -286,31 +286,10 @@ private final int ID_PATH;
 	public void pelear(Unidad u1, Unidad u2){
 		u1.pelear(u2);
 	}
-	
+	/*
 	public static void main(String[] args) {
 	
-		HashMap<Integer, List<Integer>> mapa =  new HashMap<Integer, List<Integer>>();
-		ArrayList<Integer> caminosCiudad1 = new ArrayList<Integer>();
-		ArrayList<Integer> caminosCiudad2 = new ArrayList<Integer>();
-		ArrayList<Integer> caminosCiudad3 = new ArrayList<Integer>();
-		ArrayList<Integer> caminosCiudad4 = new ArrayList<Integer>();
-		caminosCiudad1.add(1);
-		caminosCiudad1.add(2);
-		caminosCiudad2.add(1);
-		caminosCiudad2.add(3);
-		caminosCiudad2.add(5);
-		caminosCiudad3.add(2);
-		caminosCiudad3.add(3);
-		caminosCiudad3.add(4);
-		caminosCiudad4.add(4);
-		caminosCiudad4.add(5);
-		mapa.put(1,caminosCiudad1);
-		mapa.put(2,caminosCiudad2);
-		mapa.put(3,caminosCiudad3);
-		mapa.put(4,caminosCiudad4);
 		
-		for (Entry<Integer, List<Integer>> e: mapa.entrySet()) 
-		    System.out.println(e.getKey() + " " + e.getValue());
 		
 		
 		
@@ -318,5 +297,5 @@ private final int ID_PATH;
 			
 		
 		CaminoDobleEntrada p = new CaminoDobleEntrada(1, 1, 3);
-	}
+	}*/
 }
