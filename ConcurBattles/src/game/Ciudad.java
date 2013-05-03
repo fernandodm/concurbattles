@@ -1,11 +1,13 @@
 package game;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 
-import channel.Channel;
+// import channel.Channel;
+import ar.edu.unq.tpi.pconc.Channel;
 
 public class Ciudad {
 	
@@ -19,17 +21,27 @@ public class Ciudad {
 	Channel<String> permiso = new Channel<String>(GeneradorDeCanal.generarPermiso());
 	Channel<Unidad> enviarAlCastillo = new Channel<Unidad>(getBANDO());
 	
+	List<CaminoDobleEntrada> caminos = new ArrayList<CaminoDobleEntrada>();
+	
 	public Ciudad(int id, List<Integer> destinos){
 		ID_CITY = id;
 		DESTINOS = destinos;
 	
 		final Channel<Unidad> unidadNueva = new Channel<Unidad>(ID_CITY);
 		
+		for(Integer nroCiudad : DESTINOS) {
+			if(this.ID_CITY < nroCiudad) {
+				caminos.add(new CaminoDobleEntrada(this.ID_CITY, nroCiudad));
+			}
+		}
+		
 		new Thread(){
 			public void run(){
 				
 				Set<Unidad> unidades = new HashSet<Unidad>();
 				permisoEspecial.send("permiso");
+				permiso.send("permiso");
+				
 				while(! Juego.gameOver()){
 				
 					Unidad unidad = enviarALaArena.receive();
@@ -86,10 +98,11 @@ public class Ciudad {
 					Unidad unidad = unidadNueva.receive();
 					unidad.setCanalDePermiso(permiso);
 					unidad.setMsj(msj);
-					msj.send("agregar");
-					enviarALaArena.send(unidad);
+					
 					permiso.receive();
 					
+					msj.send("agregar");
+					enviarALaArena.send(unidad);
 				}				
 			}
 		}.start();

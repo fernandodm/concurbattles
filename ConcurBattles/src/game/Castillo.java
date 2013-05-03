@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import channel.Channel;
+//import channel.Channel;
+import ar.edu.unq.tpi.pconc.Channel;
 
 public class Castillo {
 	
@@ -17,13 +18,21 @@ public class Castillo {
 	Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
 	Channel<String> msj = new Channel<String>(GeneradorDeCanal.generarNumeroDeCanal());
 	Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarOtroNumeroDeCanal());
-	Channel<String> permiso = new Channel<String>(GeneradorDeCanal.generarPermiso());	
+	Channel<String> permiso = new Channel<String>(GeneradorDeCanal.generarPermiso());
+	
+	List<CaminoDobleEntrada> caminos = new ArrayList<CaminoDobleEntrada>();
 	
 	public Castillo(int bando, int id, List<Integer> destinos) {
 		this.setDESTINOS(destinos);
 		BANDO = bando;
 		FLAG_CASTILLO = bando;
 		ID_CITY = id;
+		
+		for(Integer nroCiudad : DESTINOS) {
+			if(this.ID_CITY < nroCiudad) {
+				caminos.add(new CaminoDobleEntrada(this.ID_CITY, nroCiudad));
+			}
+		}
 		
 		final Channel<Unidad> unidadNueva = new Channel<Unidad>(FLAG_CASTILLO);
 		unidadNueva.send(new Unidad(getBANDO()));
@@ -35,6 +44,7 @@ public class Castillo {
 				
 				Set<Unidad> unidades = new HashSet<Unidad>();
 				permisoEspecial.send("permiso");
+				permiso.send("permiso");
 
 				while(! Juego.gameOver()){
 				
@@ -91,12 +101,17 @@ public class Castillo {
 				while(! Juego.gameOver()) {
 					
 					Unidad unidad = unidadNueva.receive();
+					
+					Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
+					notificacionUI.send(unidad.getId() +" "+ getID_CITY());
+					
 					unidad.setCanalDePermiso(permiso);
 					unidad.setMsj(msj);
-					msj.send("agregar");
-					enviarALaArena.send(unidad);
+					
 					permiso.receive();
 					
+					enviarALaArena.send(unidad);
+					msj.send("agregar");
 				}				
 			}
 		}.start();

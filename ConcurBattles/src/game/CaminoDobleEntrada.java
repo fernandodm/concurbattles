@@ -6,7 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import channel.Channel;
+//import channel.Channel;
+import ar.edu.unq.tpi.pconc.Channel;
 
 public class CaminoDobleEntrada {
 private final int ID_PATH;
