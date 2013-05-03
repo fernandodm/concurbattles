@@ -1,6 +1,10 @@
 package game;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
 
 import channel.Channel;
 
@@ -25,16 +29,16 @@ private final int ID_PATH;
 		ID_CITY1 = idcity1;
 		ID_CITY2 = idcity2;
 		
-		final Channel<Integer> permisoLado1 = new Channel<Integer>(ID_PATH+100);
-		final Channel<Integer> permisoLado2 = new Channel<Integer>(ID_PATH+200);
-		final Channel<Unidad> entradaLado1 = new Channel<Unidad>(ID_PATH+300);
-		final Channel<Unidad> entradaLado2 = new Channel<Unidad>(ID_PATH+400);
-		final Channel<Integer> accessToCity1 = new Channel<Integer>(ID_PATH+1000); // canales para enviar a ciudad , faltaria un canala de permiso de acceso?
-		final Channel<Integer> accessToCity2 = new Channel<Integer>(ID_PATH+2000); // canales para enviar a ciudad
-		final Channel<Unidad> arenaPath = new Channel<Unidad>(ID_PATH+3000);
-		final Channel<Integer> arenaPermiso = new Channel<Integer>(ID_PATH+4000);
+		final Channel<Integer> permisoLado1 = new Channel<Integer>(idcity1+idcity2+1000);
+		final Channel<Integer> permisoLado2 = new Channel<Integer>(idcity1+idcity2+2000);
+		final Channel<Unidad> entradaLado1 = new Channel<Unidad>(idcity1+idcity2+3000);
+		final Channel<Unidad> entradaLado2 = new Channel<Unidad>(idcity1+idcity2+4000);
+		final Channel<Unidad> accessToCity1 = new Channel<Unidad>(ID_CITY1); // canales para enviar a ciudad , faltaria un canala de permiso de acceso?
+		final Channel<Unidad> accessToCity2 = new Channel<Unidad>(ID_CITY2); // canales para enviar a ciudad
+		final Channel<Unidad> arenaPath = new Channel<Unidad>(ID_PATH+500);
+		final Channel<Integer> arenaPermiso = new Channel<Integer>(ID_PATH+600);
 		
-		
+		System.out.println("Camino "+id+ " conectando ciudades " + idcity1 + " y " +idcity2  + " generado");
 		
 		new Thread() {
 			public void run() {
@@ -124,19 +128,28 @@ private final int ID_PATH;
 							if(viajero1.isEstoyVivo()){
 								System.out.println("La unidad " +viajero1.getId() +" del bando "+ viajero1.getBando()+" ha Vencido!");
 								System.out.println("La unidad " +viajero2.getId() +" del bando "+ viajero2.getBando()+" ha Muerto!");
-								System.out.println("Unidad " +  viajero1.getId() + " de bando  "+viajero1.getBando()+ "enviada a ciudad.");
+								accessToCity2.send(viajero1);
+								System.out.println("Unidad " +  viajero1.getId() + " de bando  "+viajero1.getBando()+ "enviada a ciudad " + ID_CITY2);
 								
 							}else{
 								System.out.println("La unidad " +viajero2.getId() +" del bando "+ viajero2.getBando()+" ha ganado");
 								System.out.println("La unidad " +viajero1.getId() +" del bando "+ viajero1.getBando()+" ha Muerto!");
-								System.out.println("Unidad " +  viajero2.getId() + " de bando  "+viajero2.getBando()+ "enviada a ciudad.");
+								accessToCity1.send(viajero2);
+								System.out.println("Unidad " +  viajero2.getId() + " de bando  "+viajero2.getBando()+ "enviada a ciudad " + ID_CITY1);
 							}
 							//
 						}else{
 							System.out.println("No se cruzó con enemigo");
+							if(viajerosLado1.contains(viajero)){
+								System.out.println("Unidad " +  viajero.getId() + " de bando  "+viajero.getBando()+ "enviada a ciudad " + ID_CITY2);
+							}else{
+								if(viajerosLado2.contains(viajero)){
+									System.out.println("Unidad " +  viajero.getId() + " de bando  "+viajero.getBando()+ "enviada a ciudad " + ID_CITY1);
+								}
+							}
 							quitarAViajero(viajero);
 							//ENVIAR A CIUDAD EFECTIVAMENTE
-							System.out.println("Unidad " +  viajero.getId() + " de bando  "+viajero.getBando()+ "enviada a ciudad.");
+							//System.out.println("Unidad " +  viajero.getId() + " de bando  "+viajero.getBando()+ "enviada a ciudad.");
 						}
 						
 						
@@ -275,6 +288,35 @@ private final int ID_PATH;
 	}
 	
 	public static void main(String[] args) {
-		CaminoDobleEntrada p = new CaminoDobleEntrada(1, 2, 3);
+	
+		HashMap<Integer, List<Integer>> mapa =  new HashMap<Integer, List<Integer>>();
+		ArrayList<Integer> caminosCiudad1 = new ArrayList<Integer>();
+		ArrayList<Integer> caminosCiudad2 = new ArrayList<Integer>();
+		ArrayList<Integer> caminosCiudad3 = new ArrayList<Integer>();
+		ArrayList<Integer> caminosCiudad4 = new ArrayList<Integer>();
+		caminosCiudad1.add(1);
+		caminosCiudad1.add(2);
+		caminosCiudad2.add(1);
+		caminosCiudad2.add(3);
+		caminosCiudad2.add(5);
+		caminosCiudad3.add(2);
+		caminosCiudad3.add(3);
+		caminosCiudad3.add(4);
+		caminosCiudad4.add(4);
+		caminosCiudad4.add(5);
+		mapa.put(1,caminosCiudad1);
+		mapa.put(2,caminosCiudad2);
+		mapa.put(3,caminosCiudad3);
+		mapa.put(4,caminosCiudad4);
+		
+		for (Entry<Integer, List<Integer>> e: mapa.entrySet()) 
+		    System.out.println(e.getKey() + " " + e.getValue());
+		
+		
+		
+			
+			
+		
+		CaminoDobleEntrada p = new CaminoDobleEntrada(1, 1, 3);
 	}
 }
