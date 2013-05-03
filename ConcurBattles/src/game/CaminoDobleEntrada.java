@@ -28,7 +28,7 @@ private final int ID_PATH;
 		final Channel<Integer> permisoLado1 = new Channel<Integer>(ID_PATH+100);
 		final Channel<Integer> permisoLado2 = new Channel<Integer>(ID_PATH+200);
 		final Channel<Unidad> entradaLado1 = new Channel<Unidad>(ID_PATH+300);
-		final Channel<Unidad> entradaLado2 = new Channel<Unidad>(ID_PATH+300);
+		final Channel<Unidad> entradaLado2 = new Channel<Unidad>(ID_PATH+400);
 		final Channel<Integer> accessToCity1 = new Channel<Integer>(ID_PATH+1000); // canales para enviar a ciudad , faltaria un canala de permiso de acceso?
 		final Channel<Integer> accessToCity2 = new Channel<Integer>(ID_PATH+2000); // canales para enviar a ciudad
 		final Channel<Unidad> arenaPath = new Channel<Unidad>(ID_PATH+3000);
@@ -50,11 +50,17 @@ private final int ID_PATH;
 					Unidad viajero =entradaLado1.receive();  
 					viajerosLado1.add(viajero); // Unidad entro en camino
 					
-					System.out.println("Se agrego nueva unidad " + viajero.getId() + " de bando "+ viajero.getBando()+ " \n esperando confirmacion de arena...");
+					System.out.println("Se agrego por lado 1nueva unidad " + viajero.getId() + " de bando "+ viajero.getBando()+ " \n esperando confirmacion de arena...");
 					
 					arenaPermiso.receive();
-					System.out.println("Permiso obtenido");
-					System.out.println("Enviando unidad por arena");
+					System.out.println("Permiso obtenido en lado1");
+					System.out.println("Enviando unidad "+ viajero.getId()+" de bando "+viajero.getBando()+" por arena por lado 1");
+					try {
+						Thread.currentThread().sleep(0);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					arenaPath.send(viajero);
 				
 					permisoLado1.send(1);
@@ -69,14 +75,20 @@ private final int ID_PATH;
     	public void run(){
 		permisoLado2.send(1);
 		while(true) {
-			Unidad viajero =entradaLado1.receive();  
+			Unidad viajero =entradaLado2.receive();  
 			viajerosLado2.add(viajero); //unidad entro en camino
 			
-			System.out.println("Se agrego nueva unidad " + viajero.getId() + " de bando "+ viajero.getBando()+ "esperando confirmacion de arena");
+			System.out.println("Se agrego por lado2 nueva unidad " + viajero.getId() + " de bando "+ viajero.getBando()+ "esperando confirmacion de arena");
 			
 			arenaPermiso.receive();
-			System.out.println("Permiso obtenido");
-			System.out.println("Enviando unidad por arena");
+			System.out.println("Permiso obtenido por lado 2");
+			System.out.println("Enviando unidad "+ viajero.getId()+" de bando "+viajero.getBando()+" por arena por lado 2");
+			try {
+				Thread.currentThread().sleep(0);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			arenaPath.send(viajero);
 		
 			permisoLado2.send(1);
@@ -98,23 +110,43 @@ private final int ID_PATH;
 						Unidad viajero = arenaPath.receive(); // signal para activar arena
 						
 						System.out.println(" Arena analizando..." );
-							
+					
+					if(viajero.isEstoyVivo()){
+						
 						if (hayContrincante()){
 							System.out.println("Dos unidades se encontraron en el camino y van a pelear!");
-							pelear();
-							viajerosLado1.pop();
-							viajerosLado2.pop();
-						}else{
 							
-						}
-							//TODO
-						
-						//ENVIAR A CIUDAD EFECTIVAMENTE
+							Unidad viajero1 =  viajerosLado1.pop();
+							Unidad viajero2 = viajerosLado2.pop();
+							viajero1.pelear(viajero2);
+							//pelear(viajero1, viajero2);
+							System.out.println("Unidad " +viajero1.getId() +" del bando "+ viajero1.getBando()+" peleando con \n  Unidac " +viajero2.getId() +" del bando "+ viajero2.getBando());
+							if(viajero1.isEstoyVivo()){
+								System.out.println("La unidad " +viajero1.getId() +" del bando "+ viajero1.getBando()+" ha Vencido!");
+								System.out.println("La unidad " +viajero2.getId() +" del bando "+ viajero2.getBando()+" ha Muerto!");
+								System.out.println("Unidad " +  viajero1.getId() + " de bando  "+viajero1.getBando()+ "enviada a ciudad.");
+								
+							}else{
+								System.out.println("La unidad " +viajero2.getId() +" del bando "+ viajero2.getBando()+" ha ganado");
+								System.out.println("La unidad " +viajero1.getId() +" del bando "+ viajero1.getBando()+" ha Muerto!");
+								System.out.println("Unidad " +  viajero2.getId() + " de bando  "+viajero2.getBando()+ "enviada a ciudad.");
+							}
+							//
+						}else{
+							System.out.println("No se cruzó con enemigo");
+							quitarAViajero(viajero);
+							//ENVIAR A CIUDAD EFECTIVAMENTE
 							System.out.println("Unidad " +  viajero.getId() + " de bando  "+viajero.getBando()+ "enviada a ciudad.");
-				        arenaPermiso.send(1);
+						}
 						
 						
-					
+				        
+					}else{
+						System.out.println("Unidad " +  viajero.getId() + " de bando  "+viajero.getBando()+ " ya estaba muerta!!!");
+						//quitarAViajero(viajero);
+					}
+						
+					arenaPermiso.send(1);
 				}
 				
 			}
@@ -125,6 +157,12 @@ private final int ID_PATH;
 			public void run(){
 				int idB1 = 1;
 				while(true){
+					try {
+						Thread.currentThread().sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					Unidad u1 = new Unidad(1);
 					u1.setId(idB1);
 					System.out.println("Nueva Unidad numero "+ u1.getId() +" del bando " + u1.getBando() );
@@ -143,6 +181,12 @@ private final int ID_PATH;
 					public void run(){
 						int idB2 = 1;
 						while(true){
+							try {
+								Thread.currentThread().sleep(1500);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 							Unidad u2 = new Unidad(2);
 							u2.setId(idB2);
 							System.out.println("Nueva Unidad numero "+ u2.getId() +" del bando " + u2.getBando() );
@@ -175,15 +219,59 @@ private final int ID_PATH;
 	
 	public boolean hayContrincante(){
 		if(  !(this.viajerosLado1.isEmpty()) &&  !(this.viajerosLado2.isEmpty() )) {
-			return this.viajerosLado1.get(0).getBando() != this.viajerosLado2.get(0).getBando();
+			return this.viajerosLado1.peekFirst().getBando() != this.viajerosLado2.peekFirst().getBando();
 			
 		}else{
 			return false;
 		}
 	}
 	
-	public void pelear(){
-		this.viajerosLado1.get(0).pelear(this.viajerosLado2.get(0));
+	public boolean lado1Vacio(){
+		return this.viajerosLado1.isEmpty();
+	}
+	
+	public boolean lado2Vacio(){
+		return this.viajerosLado2.isEmpty();
+	}
+	
+	public void quitarAViajero(Unidad u){
+		
+		if(this.lado1Vacio() && !(this.lado2Vacio()) ){
+			this.viajerosLado2.removeFirst();
+			System.out.println(" unidad "+u.getId()+" entrando por lado 2  del bando " + u.getBando()+ " ha pasado por el camino");
+		}
+		else{
+			
+			if(this.lado2Vacio() && !(this.lado1Vacio())){
+				this.viajerosLado1.removeFirst();
+				System.out.println(" unidad" + u.getId()+ "entrando por lado 1   del bando " + u.getBando()+ " ha pasado por el camino");
+				
+			
+		     }else{
+		    	 
+		    	 if( !this.lado1Vacio()  !=  !this.lado2Vacio()){
+		    		 if(this.viajerosLado1.getFirst().getId() == u.getId()){
+							this.viajerosLado1.removeFirst();
+							System.out.println(" unidad" + u.getId()+ "entrando por lado 1   del bando " + u.getBando()+ " ha pasado por el camino");
+						}else{
+							if(this.viajerosLado2.getFirst().getId() == u.getId() ){
+								this.viajerosLado2.removeFirst();
+								System.out.println(" unidad" + u.getId()+ "entrando por lado 2   del bando " + u.getBando()+ " ha pasado por el camino");
+							}
+					
+						}
+		    	 }
+					
+			}
+		}
+				
+			
+			
+	}			
+	
+	
+	public void pelear(Unidad u1, Unidad u2){
+		u1.pelear(u2);
 	}
 	
 	public static void main(String[] args) {
