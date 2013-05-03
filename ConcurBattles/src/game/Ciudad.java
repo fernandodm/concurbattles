@@ -1,7 +1,10 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 
 import channel.Channel;
 
@@ -27,19 +30,29 @@ public class Ciudad {
 				new Thread(){
 					public void run(){
 						
-						List<Unidad> unidades = new ArrayList<Unidad>();
+						Set<Unidad> unidades = new HashSet<Unidad>();
 						permisoEspecial.send("permiso");
 						while(true){
 						
 							Unidad unidad = enviarALaArena.receive();
 							if(msj.equals("agregar")){
+								
 								if(!unidades.isEmpty()){
+									
 									while(hayUnidadContrariaDe(unidad.getBando(), unidades)){
+										
 										for(Unidad each : unidades){
+											
 											if(each.getBando() != unidad.getBando()){
 												unidad.pelear(each);
-												//unidades.remove(recibir unidad perdedora);
-												//unidad = recibir unidad ganadora
+												
+												if(!unidad.isEstoyVivo()){
+													
+													unidad = each;
+																										
+												}else{
+													unidades.remove(each);
+												}
 											}
 										}
 									}
@@ -69,6 +82,7 @@ public class Ciudad {
 				while(true) {
 					
 					Unidad unidad = unidadNueva.receive();
+					unidad.setCanalDePermiso(permiso);
 					msj.send("agregar");
 					enviarALaArena.send(unidad);
 					permiso.receive();
@@ -78,7 +92,7 @@ public class Ciudad {
 				
 			}
 	
-	public boolean hayUnidadContrariaDe(int unBando, List<Unidad> lista){
+	public boolean hayUnidadContrariaDe(int unBando, Set<Unidad> lista){
 		
 		boolean hayUnidad = false;
 		for (Unidad each : lista) {
@@ -115,7 +129,8 @@ public class Ciudad {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		
+	
 	}
 
 }
