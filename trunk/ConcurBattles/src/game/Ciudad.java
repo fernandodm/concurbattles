@@ -5,9 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
-// import channel.Channel;
-import ar.edu.unq.tpi.pconc.Channel;
+import channel.Channel;
 
 public class Ciudad {
 	
@@ -15,10 +13,13 @@ public class Ciudad {
 	private int BANDO;
 	private final List<Integer> DESTINOS;
 	
-	Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
-	Channel<String> msj = new Channel<String>(GeneradorDeCanal.generarNumeroDeCanal());
+	Integer nroMsjs = GeneradorDeCanal.generarNumeroDeCanal();
+	Integer nroPermiso = GeneradorDeCanal.generarPermiso();
+	
+	//Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
+	Channel<String> msj = new Channel<String>(nroMsjs);
 	Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarOtroNumeroDeCanal());
-	Channel<String> permiso = new Channel<String>(GeneradorDeCanal.generarPermiso());
+	Channel<String> permiso = new Channel<String>(nroPermiso);
 	Channel<Unidad> enviarAlCastillo = new Channel<Unidad>(getBANDO());
 	
 	List<CaminoDobleEntrada> caminos = new ArrayList<CaminoDobleEntrada>();
@@ -39,13 +40,15 @@ public class Ciudad {
 			public void run(){
 				
 				Set<Unidad> unidades = new HashSet<Unidad>();
-				permisoEspecial.send("permiso");
+				//permisoEspecial.send("permiso");
 				permiso.send("permiso");
 				
 				while(! Juego.gameOver()){
 				
 					Unidad unidad = enviarALaArena.receive();
-					if(msj.equals("agregar")){
+					String mensaje = msj.receive();
+					
+					if(mensaje.equals("agregar")){
 						
 						if(!unidades.isEmpty()){
 							
@@ -77,7 +80,7 @@ public class Ciudad {
 							enviarAlCastillo.send(new Unidad(getBANDO()));
 						}
 					}else{
-						if(msj.equals("sacar")){
+						if(mensaje.equals("sacar")){
 							unidades.remove(unidad);
 							unidad.setCanalDePermiso(null);
 							unidad.viajar(getID_CITY(), getDESTINOS());
@@ -91,18 +94,18 @@ public class Ciudad {
 		
 		new Thread() {
 			public void run() {
-				permisoEspecial.receive(); //recibe un permiso de la arena
+				//permisoEspecial.receive(); recibe un permiso de la arena
 				
 				while(! Juego.gameOver()) {
 					
 					Unidad unidad = unidadNueva.receive();
-					unidad.setCanalDePermiso(permiso);
-					unidad.setMsj(msj);
+					unidad.setCanalDePermiso(nroPermiso);
+					unidad.setMsj(nroMsjs);
 					
 					permiso.receive();
 					
-					msj.send("agregar");
 					enviarALaArena.send(unidad);
+					msj.send("agregar");
 				}				
 			}
 		}.start();

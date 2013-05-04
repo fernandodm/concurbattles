@@ -5,8 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-//import channel.Channel;
-import ar.edu.unq.tpi.pconc.Channel;
+import channel.Channel;
 
 public class Castillo {
 	
@@ -15,12 +14,17 @@ public class Castillo {
 	private final int BANDO;
 	private List<Integer> DESTINOS;
 	
-	Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
-	Channel<String> msj = new Channel<String>(GeneradorDeCanal.generarNumeroDeCanal());
-	Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarOtroNumeroDeCanal());
-	Channel<String> permiso = new Channel<String>(GeneradorDeCanal.generarPermiso());
+	Integer nroMsjs = GeneradorDeCanal.generarNumeroDeCanal();
+	Integer nroPermiso = GeneradorDeCanal.generarPermiso();
+	
+	private final Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
+	private final Channel<String> msj = new Channel<String>(nroMsjs);
+	private final Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarOtroNumeroDeCanal());
+	private final Channel<String> permiso = new Channel<String>(nroPermiso);
 	
 	List<CaminoDobleEntrada> caminos = new ArrayList<CaminoDobleEntrada>();
+	
+	private final Channel<Unidad> unidadNueva;
 	
 	public Castillo(int bando, int id, List<Integer> destinos) {
 		this.setDESTINOS(destinos);
@@ -28,13 +32,20 @@ public class Castillo {
 		FLAG_CASTILLO = bando;
 		ID_CITY = id;
 		
+		unidadNueva = new Channel<Unidad>(FLAG_CASTILLO);
+		
 		for(Integer nroCiudad : DESTINOS) {
 			if(this.ID_CITY < nroCiudad) {
-				caminos.add(new CaminoDobleEntrada(this.ID_CITY, nroCiudad));
+				final int nroCiu = nroCiudad;
+				
+				new Thread() {
+					public void run() {
+						new CaminoDobleEntrada(ID_CITY, nroCiu);
+					}
+				}.start();
 			}
 		}
 		
-		final Channel<Unidad> unidadNueva = new Channel<Unidad>(FLAG_CASTILLO);
 		unidadNueva.send(new Unidad(getBANDO()));
 		
 		// Espera que le avisen cuando crear una nueva unidad porque
@@ -49,7 +60,9 @@ public class Castillo {
 				while(! Juego.gameOver()){
 				
 					Unidad unidad = enviarALaArena.receive();
-					if(msj.equals("agregar")){
+					String mensaje = msj.receive();
+					
+					if(mensaje.equals("agregar")){
 						
 						if(!unidades.isEmpty()){
 							
@@ -75,20 +88,35 @@ public class Castillo {
 							}else{
 								unidades.add(unidad);
 							}
+							
+						// Si no hay defensa, entro
 						}else{
 							if(getBANDO() != unidad.getBando()){
 								Juego.setGameOver(true);
 							}else{
+								// Si el lugar me pertenece, entro
 								unidades.add(unidad);
 							}
 						}
-					}else{
-						if(msj.equals("sacar")){
-							unidades.remove(unidad);
-							unidad.setCanalDePermiso(null);
-							unidad.viajar(getID_CITY(), getDESTINOS());
-						}
+					} else if(mensaje.equals("sacar")) {
+							//unidades.remove(unidad);
+							//unidad.setCanalDePermiso(null);
+							//unidad.viajar(getID_CITY(), getDESTINOS());
+							if(! unidades.isEmpty()) {
+								Unidad unit = null;
+								
+								for(Unidad u : unidades) {
+									if(unit != null) {
+										break;
+									}	
+									unit = u;
+								}
+								
+								unit.viajar(getID_CITY(), getDESTINOS());
+								unidades.remove(unit);
+							}
 					}
+				
 				permiso.send("permiso");	
 				}
 			}
@@ -98,20 +126,43 @@ public class Castillo {
 		new Thread() {
 			public void run() {
 				
+				Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
+				
 				while(! Juego.gameOver()) {
 					
-					Unidad unidad = unidadNueva.receive();
+					Unidad unidad = unidadNueva.receive();	
 					
-					Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
 					notificacionUI.send(unidad.getId() +" "+ getID_CITY());
-					
-					unidad.setCanalDePermiso(permiso);
-					unidad.setMsj(msj);
+					System.out.println(nroPermiso);
+					unidad.setCanalDePermiso(nroPermiso);
+					unidad.setMsj(nroMsjs);
 					
 					permiso.receive();
 					
+					System.out.println("Enviar a la arena del castillo");
+					
 					enviarALaArena.send(unidad);
 					msj.send("agregar");
+				}				
+			}
+		}.start();
+		
+		new Thread() {
+			public void run() {
+				
+				while(! Juego.gameOver()) {
+					
+					permiso.receive();
+					
+					System.out.println("Sacar al primero de la arena para viajar");
+					
+					msj.send("sacar");
+					
+					try {
+						Thread.sleep(0);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}				
 			}
 		}.start();

@@ -3,8 +3,7 @@ package game;
 import java.io.Serializable;
 import java.util.List;
 
-// import channel.Channel;
-import ar.edu.unq.tpi.pconc.Channel;
+import channel.Channel;
 
 public class Unidad implements Serializable {
 
@@ -14,8 +13,10 @@ public class Unidad implements Serializable {
 	private int batallasGanadas = 1;
 	private String id;
 	private boolean estoyVivo;
-	private Channel<String> canalDePermiso = null;
-	private Channel<String> msj = null;
+	private Integer canalDePermiso;
+	private Integer msj;
+	
+	private Integer miCanal;
 	
 	private static Integer idIncremental = 1;
 
@@ -25,16 +26,25 @@ public class Unidad implements Serializable {
 		
 		this.setBando(bando);
 		this.setEstoyVivo(true);
+		
+		miCanal = GeneradorDeCanal.generarOtroNumeroDeCanal();
+		/*
 		new Thread(){
 			public void run() {
 				while(!Juego.gameOver()) {
+					
+					
+					System.out.println(canalDePermiso);
 					if(canalDePermiso != null) {
-						canalDePermiso.receive();
-						msj.send("sacar");	
+						Channel<String> permiso = new Channel<String>(getCanalDePermiso());
+						Channel<String> mensaje = new Channel<String>(getMsj());
+					
+						permiso.receive();
+						mensaje.send("sacar");
 					}
 				}	
 			}
-		};
+		}.start();*/
 	}
 
 	/**
@@ -66,6 +76,7 @@ public class Unidad implements Serializable {
 	 * @param caminos
 	 */
 	public void viajar(Integer idActual, List<Integer> caminos) {
+		System.out.println("Me dijeron que tengo que viajar"+ this.getId());
 		if(isEstoyVivo()) {
 			if(! caminos.isEmpty()) {
 				// Elegir un camino random, crear el canal correspondiente y mandarse
@@ -78,11 +89,11 @@ public class Unidad implements Serializable {
 				Channel<Unidad> aCamino = new Channel<Unidad>(accesoCamino);
 				pCamino.receive();
 				aCamino.send(this);
-				
-				
+
+				System.out.println("Viajo a la ciudad "+ ciudadDestino);
 				
 				Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
-				notificacionUI.send(this.getId() +" "+ ciudadDestino + "*");
+				notificacionUI.send(this.getId() +" "+ ciudadDestino + "");
 
 
 				/*
@@ -195,11 +206,11 @@ public class Unidad implements Serializable {
 		this.id = id;
 	}
 	
-	public Channel<String> getMsj() {
+	public Integer getMsj() {
 		return msj;
 	}
 
-	public void setMsj(Channel<String> msj) {
+	public void setMsj(Integer msj) {
 		this.msj = msj;
 	}
 	
@@ -211,11 +222,11 @@ public class Unidad implements Serializable {
 		this.estoyVivo = estoyVivo;
 	}
 
-	public Channel<String> getCanalDePermiso() {
+	public Integer getCanalDePermiso() {
 		return canalDePermiso;
 	}
 
-	public void setCanalDePermiso(Channel<String> canalDePermiso) {
+	public void setCanalDePermiso(Integer canalDePermiso) {
 		this.canalDePermiso = canalDePermiso;
 	}
 
