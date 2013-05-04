@@ -115,20 +115,20 @@ public class Unidad implements Serializable {
 	 */
 	public Integer getPermisoCamino(Integer ID_1, Integer ID_2) {
 		if(ID_1 > ID_2) {
-			return 2000 + ID_1 + ID_2;
+			return 2000 + (ID_1 * (int)Math.floor((ID_1/2)))   + (ID_2 *   (int)Math.floor((ID_2/2) ));
 			//return new Integer(ID_1.toString() + ID_2.toString());
 		}
 		
-		return 1000 + ID_1 + ID_2;
+		return 1000 + (ID_1 * (int)Math.floor((ID_1/2)))   + (ID_2 *   (int)Math.floor((ID_2/2) ));
 		//return new Integer(ID_2.toString() + ID_1.toString());
 	}
 	
 	public Integer getAccesoCamino(Integer ID_1, Integer ID_2) {
 		if(ID_1 > ID_2) {
-			return 4000 + ID_1 + ID_2;
+			return 4000 + (ID_1 * (int)Math.floor((ID_1/2)))   + (ID_2 *   (int)Math.floor((ID_2/2) ));
 		}
 		
-		return 3000 + ID_1 + ID_2;
+		return 3000 + (ID_1 * (int)Math.floor((ID_1/2)))   + (ID_2 *   (int)Math.floor((ID_2/2) ));
 	}
 	
 	/**
