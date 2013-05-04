@@ -7,20 +7,12 @@ import java.util.List;
 import static java.lang.Integer.parseInt;
 
 import ar.edu.unq.tpi.concurbattles.ConcurBattles;
-import ar.edu.unq.tpi.pconc.Channel;
+import channel.Channel;
 
 public class Juego {
 	public static final Integer inputChannel = 9990;
 	private static final Integer outputChannel = 9991;
 	private static boolean gameOver = false;
-	
-	public static boolean gameOver(){
-		return gameOver;
-	}
-	
-	public static void setGameOver(boolean b) {
-		gameOver = b;
-	}
 	
 	public static void main(String[] args) {
 		
@@ -79,14 +71,14 @@ public class Juego {
 					}
 				}
 			}
-			
+			/*
 			private void crearCastillo(int bando, List<Integer> caminos) {
 				new Castillo(bando, caminos.remove(0), caminos);
 			}
 			
 			private void crearCiudad(List<Integer> caminos) {
 				new Ciudad(caminos.remove(0), caminos);
-			}
+			}*/
 		}.start();
 		/*	
 		while (true) {
@@ -113,5 +105,13 @@ public class Juego {
 				}
 			}
 		}.start();
+	}
+	
+	public static boolean gameOver(){
+		return gameOver;
+	}
+	
+	public static void setGameOver(boolean b) {
+		gameOver = b;
 	}
 }
