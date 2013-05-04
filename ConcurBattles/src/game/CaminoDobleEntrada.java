@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-//import channel.Channel;
-import ar.edu.unq.tpi.pconc.Channel;
+import channel.Channel;
+
 
 public class CaminoDobleEntrada {
 private final int ID_PATH;
@@ -42,10 +42,10 @@ private final int ID_PATH;
 		ID_CITY2 = idcity2;
 		
 		idIncremental ++;
-		final Channel<Integer> permisoLado1 = new Channel<Integer>(idcity1+idcity2+1000);
-		final Channel<Integer> permisoLado2 = new Channel<Integer>(idcity1+idcity2+2000);
-		final Channel<Unidad> entradaLado1 = new Channel<Unidad>(idcity1+idcity2+3000);
-		final Channel<Unidad> entradaLado2 = new Channel<Unidad>(idcity1+idcity2+4000);
+		final Channel<Integer> permisoLado1 = new Channel<Integer>((idcity1 * (int)Math.floor((idcity1/2)))   + (idcity2 *   (int)Math.floor((idcity2/2) ))  +1000);
+		final Channel<Integer> permisoLado2 = new Channel<Integer>((idcity1 * (int)Math.floor((idcity1/2)))   + (idcity2 *   (int)Math.floor((idcity2/2) )) +2000);
+		final Channel<Unidad> entradaLado1 = new Channel<Unidad>((idcity1 * (int)Math.floor((idcity1/2)))   + (idcity2 *   (int)Math.floor((idcity2/2) ))  +3000);
+		final Channel<Unidad> entradaLado2 = new Channel<Unidad>((idcity1 * (int)Math.floor((idcity1/2)))   + (idcity2 *   (int)Math.floor((idcity2/2) ))  +4000);
 		final Channel<Unidad> accessToCity1 = new Channel<Unidad>(ID_CITY1); // canales para enviar a ciudad , faltaria un canala de permiso de acceso?
 		final Channel<Unidad> accessToCity2 = new Channel<Unidad>(ID_CITY2); // canales para enviar a ciudad
 		final Channel<Unidad> arenaPath = new Channel<Unidad>(ID_PATH+500);
