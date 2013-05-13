@@ -8,24 +8,24 @@ public class Entidad {
 	private static int bando = 0;
     private static int id;
 	private static ArrayList<Integer> ciudadesAdyacentes = new ArrayList<Integer>();
-	private static ArrayList<ArrayList<Integer>> unidades = new ArrayList<ArrayList<Integer>>();
+	private static ArrayList<Unidad> unidades = new ArrayList<Unidad>();
 	
-	private static boolean hayUnidadesDeBandoContrarioA(int bando){
-		for (ArrayList<Integer> unidad : unidades) {
-			if(! unidad.get(0).equals(bando)){
+	private static boolean hayUnidadesDeBandoContrarioA(Unidad unaUnidad){
+		for (Unidad unidad : unidades) {
+			if(! (unidad.getBando() == unaUnidad.getBando())){
 				return true;
 			}
 		}
 		return false;
 	}
 	
-	private static void iniciarPelea(ArrayList<Integer> unidad){
-		for (ArrayList<Integer> enemigo : unidades) {
+	private static void iniciarPelea(Unidad unaUnidad){
+		for (Unidad enemigo : unidades) {
 			
 			
-			unidad.pelear(enemigo);
+			unaUnidad.pelear(enemigo);
 			
-			if(enemigo.estoyVivo){
+			if(enemigo.isEstoyVivo()){
 			   break;
 			}else{
 			  unidades.remove(enemigo);
@@ -38,7 +38,7 @@ public class Entidad {
 	
 	
 	private static void decidan(){
-       for (ArrayList<Integer> unidad : unidades) {
+       for (Unidad unidad : unidades) {
 			boolean decision = unidad.decidirViajar();
 			if(decision){
 				unidades.remove(unidad);
@@ -51,16 +51,16 @@ public class Entidad {
 	public static void main(String[] args) {
 		
 		final Channel<String> arenaControl = new Channel<String>(id+96);
-		final Channel<ArrayList<Integer>> arena = new Channel<ArrayList<Integer>>(id+97);
+		final Channel<Unidad> arena = new Channel<Unidad>(id+97);
 		final Channel<Integer> permisoPuerta = new Channel<Integer>(id+98);
-		final Channel<ArrayList<Integer>> puerta = new Channel<ArrayList<Integer>>(id+99);
+		final Channel<Unidad> puerta = new Channel<Unidad>(id+99);
 		
 		//thread puerta
 		new Thread(){
 			public void run(){
 				permisoPuerta.send(1);
 				while (true){
-					ArrayList<Integer> unidad = puerta.receive();
+					Unidad unidad = puerta.receive();
 					arenaControl.send("add");
 					arena.send(unidad);
 					permisoPuerta.send(1);
@@ -75,17 +75,17 @@ public class Entidad {
 						while (true){
 							String orden = arenaControl.receive();
 							if(orden.equals("add")){
-								ArrayList<Integer> unidad = arena.receive();
+								Unidad unidad = arena.receive();
 								
 								//verificar si hay unidades de bando contrario
-								if (hayUnidadesDeBandoContrarioA(unidad.get(0))){
+								if (hayUnidadesDeBandoContrarioA(unidad)){
 									iniciarPelea(unidad);
 								}
-								if(unidad.estoyVivo){
+								if(unidad.isEstoyVivo()){
 									unidades.add(unidad);
 									//verificar bando, si es distinto, conquisto
-									if(id!= unidad.bando){
-										id = unidad.bando;
+									if(id!= unidad.getBando()){
+										id = unidad.getBando();
 										//crear unidad en castillo de dicho bando
 										
 										// avisar a castillo de bando, que cree otra unidad.
