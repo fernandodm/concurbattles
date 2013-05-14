@@ -84,12 +84,12 @@ public class Entidad {
 								if(unidad.isEstoyVivo()){
 									unidades.add(unidad);
 									//verificar bando, si es distinto, conquisto
-									if(id!= unidad.getBando()){
-										id = unidad.getBando();
+									if(bando!= unidad.getBando()){
+										bando = unidad.getBando();
 										//crear unidad en castillo de dicho bando
 										
 										// avisar a castillo de bando, que cree otra unidad.
-										//(new Channel<Unidad>(id)).send(new Unidad(id))
+										(new Channel<Unidad>(bando)).send(new Unidad(id));
 										
 									}
 								}
