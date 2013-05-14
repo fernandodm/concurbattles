@@ -154,6 +154,11 @@ public class Unidad implements Serializable {
 		this.setEstoyVivo(false);
 	}
 	
+	
+	public boolean decidirViajar(){
+		return (int) (Math.random()) <= 0.5;
+	}
+	
 	/**
 	* Calcula si un numero pertenece a  la serie de fibonaci
 	* @param numero
