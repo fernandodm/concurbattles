@@ -6,7 +6,7 @@ import java.util.List;
 
 import static java.lang.Integer.parseInt;
 
-import ar.edu.unq.tpi.concurbattles.ConcurBattles;
+
 import channel.Channel;
 
 public class Juego {
@@ -97,12 +97,14 @@ public class Juego {
 		new Thread() {
 			public void run() {
 				String[] arg = {inputChannel.toString(), outputChannel.toString()};
-				
+				/*
 				try {
+					
 					ConcurBattles.main(arg);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+				*/
 			}
 		}.start();
 	}

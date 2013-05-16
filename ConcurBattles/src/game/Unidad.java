@@ -1,6 +1,7 @@
 package game;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import channel.Channel;
@@ -15,10 +16,19 @@ public class Unidad implements Serializable {
 	private boolean estoyVivo;
 	private Integer canalDePermiso;
 	private Integer msj;
+	private Integer ciudadAnterior;
 	
 	private Integer miCanal;
 	
 	private static Integer idIncremental = 1;
+
+	public Integer getCiudadAnterior() {
+		return ciudadAnterior;
+	}
+
+	public void setCiudadAnterior(Integer ciudadAnterior) {
+		this.ciudadAnterior = ciudadAnterior;
+	}
 
 	public Unidad(int bando) {
 		
@@ -26,7 +36,7 @@ public class Unidad implements Serializable {
 		
 		this.setBando(bando);
 		this.setEstoyVivo(true);
-		
+		this.setCiudadAnterior(bando);
 		miCanal = GeneradorDeCanal.generarOtroNumeroDeCanal();
 		/*
 		new Thread(){
@@ -70,30 +80,30 @@ public class Unidad implements Serializable {
 	}
 	
 	/**
-	 * Elijo un camino random y me mando por ese canal
-	 * ¿como sabe el canal a que ciudad sacarme desp?
+	 * Elijo un destino random y me mando por ese canal
+	 * 
 	 * @param idActual
 	 * @param caminos
 	 */
-	public void viajar(Integer idActual, List<Integer> caminos) {
+	public void viajar(Integer idActual, List<ArrayList<Integer>> destinos) {
 		System.out.println("Me dijeron que tengo que viajar"+ this.getId());
 		if(isEstoyVivo()) {
-			if(! caminos.isEmpty()) {
+			if(! destinos.isEmpty()) {
 				// Elegir un camino random, crear el canal correspondiente y mandarse
-				Integer ciudadDestino = caminos.get((int) Math.floor(Math.random() * caminos.size()));
+				List<Integer> destino = destinos.get((int) Math.floor(Math.random() * destinos.size()));
 				
-				int permisoCamino = getPermisoCamino(idActual, ciudadDestino);
-				int accesoCamino = getAccesoCamino(idActual, ciudadDestino);
+				int permisoDestino = (  getPermisoDestino(destino.get(0))  )   + destino.get(1);
+				int accesoDestino = getAccesoDestino(destino.get(0)) + destino.get(1) ;
 				
-				Channel<Unidad> pCamino = new Channel<Unidad>(permisoCamino);
-				Channel<Unidad> aCamino = new Channel<Unidad>(accesoCamino);
+				Channel<Unidad> pCamino = new Channel<Unidad>(permisoDestino);
+				Channel<Unidad> aCamino = new Channel<Unidad>(accesoDestino);
 				pCamino.receive();
 				aCamino.send(this);
 
-				System.out.println("Viajo a la ciudad "+ ciudadDestino);
+				System.out.println("Viajo a la ciudad "+ destino.get(1));
 				
 				Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
-				notificacionUI.send(this.getId() +" "+ ciudadDestino + "");
+				notificacionUI.send(this.getId() +" "+ destino.get(1) + "");
 
 
 				/*
@@ -109,26 +119,47 @@ public class Unidad implements Serializable {
 	}
 	
 	/**
-	 * @param ID_1 de una ciudad/castillo
-	 * @param ID_2 de otra ciudad/castillo
+	 
 	 * @return el id del camino que comunica las ciudades
 	 */
-	public Integer getPermisoCamino(Integer ID_1, Integer ID_2) {
-		if(ID_1 > ID_2) {
-			return 2000 + (ID_1 * (int)Math.floor((ID_1/2)))   + (ID_2 *   (int)Math.floor((ID_2/2) ));
-			//return new Integer(ID_1.toString() + ID_2.toString());
+	public Integer getPermisoDestino(Integer tipoDestino) {
+		switch (tipoDestino) {
+		case 1:
+			return 1000+300;
+			
+		case 2:
+			return 2000+300;
+			
+		case 3:
+			return 3000+300;
+			
+
+		default:
+			break;
 		}
+		return null;
 		
-		return 1000 + (ID_1 * (int)Math.floor((ID_1/2)))   + (ID_2 *   (int)Math.floor((ID_2/2) ));
-		//return new Integer(ID_2.toString() + ID_1.toString());
+		
 	}
 	
-	public Integer getAccesoCamino(Integer ID_1, Integer ID_2) {
-		if(ID_1 > ID_2) {
-			return 4000 + (ID_1 * (int)Math.floor((ID_1/2)))   + (ID_2 *   (int)Math.floor((ID_2/2) ));
+	public Integer getAccesoDestino(Integer tipoDestino) {
+		switch (tipoDestino) {
+		case 1:
+			return 1000+400;
+			
+		case 2:
+			return 2000+400;
+			
+		case 3:
+			return 3000+400;
+			
+
+		default:
+			break;
 		}
+		return null;
 		
-		return 3000 + (ID_1 * (int)Math.floor((ID_1/2)))   + (ID_2 *   (int)Math.floor((ID_2/2) ));
+		
 	}
 	
 	/**
@@ -154,7 +185,13 @@ public class Unidad implements Serializable {
 		this.setEstoyVivo(false);
 	}
 	
-	
+	/**
+	 *<El santo grial>
+	 *
+	 *Decido si quiero viajar o no y respondo con booleano
+	 *
+	 * @return
+	 */
 	public boolean decidirViajar(){
 		return (int) (Math.random()) <= 0.5;
 	}
