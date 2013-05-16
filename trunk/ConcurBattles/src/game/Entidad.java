@@ -1,16 +1,21 @@
 package game;
 
 import java.util.ArrayList;
-
+import java.util.List;
+  
 import channel.Channel;
 
 public class Entidad {
-	private static int bando = 0;
-    private static int id;
-	private static ArrayList<Integer> ciudadesAdyacentes = new ArrayList<Integer>();
-	private static ArrayList<Unidad> unidades = new ArrayList<Unidad>();
-	
-	private static boolean hayUnidadesDeBandoContrarioA(Unidad unaUnidad){
+	private int bando = 0;
+    private Integer id;
+	private  List<ArrayList<Integer>> ciudadesAdyacentes;
+	private ArrayList<Unidad> unidades = new ArrayList <Unidad>();
+	/**
+	 * Dada una Unidad se verifica si en la ciudad existan unidades del bando contrario
+	 * @param unaUnidad
+	 * @return
+	 */
+	protected  boolean hayUnidadesDeBandoContrarioA(Unidad unaUnidad){
 		for (Unidad unidad : unidades) {
 			if(! (unidad.getBando() == unaUnidad.getBando())){
 				return true;
@@ -18,8 +23,12 @@ public class Entidad {
 		}
 		return false;
 	}
-	
-	private static void iniciarPelea(Unidad unaUnidad){
+	/**
+	 * Dada una unidad, esta peleara contra todas las unidades del bando contrario en la ciudad
+	 * hasta matar a todas o morir en el intento
+	 * @param unaUnidad
+	 */
+	protected void iniciarPelea(Unidad unaUnidad){
 		for (Unidad enemigo : unidades) {
 			
 			
@@ -36,75 +45,55 @@ public class Entidad {
 		}
 	}
 	
-	
-	private static void decidan(){
-       for (Unidad unidad : unidades) {
+	/**
+	 * <EL SANTO GRIAL>
+	 * 
+	 * Metodo que representa el corazon del funcionamiento.
+	 * 
+	 * Se pide a todas las unidades que decidan que hacer, cada unidad respondera por true o false
+	 * si deciden viajar o no. Caso afirmativo, son quitadas de la ciudad y las unidades reciben por parametro
+	 * las ciudades adyacentes entre la que elegiran una para viajar; caso contrario, se queda en la ciudad.
+	 */
+	protected void decidan(){
+       for (Unidad unidad : this.getUnidades()) {
 			boolean decision = unidad.decidirViajar();
 			if(decision){
-				unidades.remove(unidad);
-				unidad.viajar(id, ciudadesAdyacentes);
+				this.getUnidades().remove(unidad);
+				unidad.setCiudadAnterior(this.getId());
+				unidad.viajar(this.getId(), this.getCiudadesAdyacentes());
 			}
 			
 			
 		}
 	}
+	
+	
+	public int getBando() {
+		return bando;
+	}
+	public void setBando(int bando) {
+		this.bando = bando;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public List<ArrayList<Integer>> getCiudadesAdyacentes() {
+		return ciudadesAdyacentes;
+	}
+	public void setCiudadesAdyacentes(List<ArrayList<Integer>> ciudadesAdyacentes) {
+		this.ciudadesAdyacentes = ciudadesAdyacentes;
+	}
+	public List<Unidad> getUnidades() {
+		return unidades;
+	}
+	public void setUnidades(ArrayList<Unidad> unidades) {
+		this.unidades = unidades;
+	}
 	public static void main(String[] args) {
 		
-		final Channel<String> arenaControl = new Channel<String>(id+96);
-		final Channel<Unidad> arena = new Channel<Unidad>(id+97);
-		final Channel<Integer> permisoPuerta = new Channel<Integer>(id+98);
-		final Channel<Unidad> puerta = new Channel<Unidad>(id+99);
-		
-		//thread puerta
-		new Thread(){
-			public void run(){
-				permisoPuerta.send(1);
-				while (true){
-					Unidad unidad = puerta.receive();
-					arenaControl.send("add");
-					arena.send(unidad);
-					permisoPuerta.send(1);
-				}
-			}
-		}.start();
-		
-		//thread arena
-				new Thread(){
-					public void run(){
-						
-						while (true){
-							String orden = arenaControl.receive();
-							if(orden.equals("add")){
-								Unidad unidad = arena.receive();
-								
-								//verificar si hay unidades de bando contrario
-								if (hayUnidadesDeBandoContrarioA(unidad)){
-									iniciarPelea(unidad);
-								}
-								if(unidad.isEstoyVivo()){
-									unidades.add(unidad);
-									//verificar bando, si es distinto, conquisto
-									if(bando!= unidad.getBando()){
-										bando = unidad.getBando();
-										//crear unidad en castillo de dicho bando
-										
-										// avisar a castillo de bando, que cree otra unidad.
-										(new Channel<Unidad>(bando)).send(new Unidad(id));
-										
-									}
-								}
-							  decidan();		
-							 //decidan las unidades que hacer, o se van o se quedan y se repite el ciclo
-								
-								
-								
-								
-								
-							}
-							
-						}
-					}
-				}.start();
 		
 	}
 }
