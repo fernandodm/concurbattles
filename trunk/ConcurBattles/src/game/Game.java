@@ -248,8 +248,7 @@ public class Game{
 					//
 					//
 					
-					new Castle(caminosAdyacentesCastillo1, 1 , 1);
-					System.out.println("Castillo 1 construido con adyacentes " + caminosAdyacentesCastillo1);
+					
 					
 					
                    int idNewCastle2 = castillo2.peekFirst(); //Identifico el id de la nueva ciudad
@@ -307,8 +306,10 @@ public class Game{
 						
 						
 					}
-					
 					new Castle(caminosAdyacentesCastillo2, idCastillo2, idCastillo2 );
+					new Castle(caminosAdyacentesCastillo1, 1 , 1);			
+					
+					System.out.println("Castillo 1 construido con adyacentes " + caminosAdyacentesCastillo1);
 					System.out.println("Castillo 2 construido  con adyancentes" + caminosAdyacentesCastillo2);
 					
 					

@@ -60,12 +60,12 @@ public class Castle extends Entidad {
 									getUnidades().add(unidad);
 									//verificar getBando(), si es distinto, conquisto
 									if(getBando()!= unidad.getBando()){
-										setBando(unidad.getBando());
+										
 										System.out.println(" El castillo" + getIdEntidad()+ " ha sido conquistada por la unidad "+ unidad.getId()+" del bando " + unidad.getBando() + " !!");
-										//crear unidad en castillo de dicho getBando()
-										Integer myId =  (int) getId();
+										
+										
 										// avisar a castillo de getBando(), que cree otra unidad.
-										(new Channel<Unidad>(getBando())).send(new Unidad(unidad.getBando()));
+										
 										Game.setGameOver(true);
 										
 										System.out.println("GANO EL BANDO "+ ((getBando() == 1) ? "GOLD" : "SILVER")+ " nro: "+ getBando());

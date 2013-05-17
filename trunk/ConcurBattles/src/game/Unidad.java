@@ -200,7 +200,7 @@ public class Unidad implements Serializable {
 		
 		if(this.esFibonacci(this.getBatallasGanadas())) {
 			this.nivel += 1;
-			System.out.println("Unidad" + this.getId() + " de bando " + this.getBando() + " ha sibido de nivel");
+			System.out.println("Unidad " + id + " de bando " + bando + " ha subido al nivel " + nivel );
 		}
 	}
 	
@@ -226,7 +226,8 @@ public class Unidad implements Serializable {
 	 * @return
 	 */
 	public boolean decidirViajar(){
-		return (Math.random()) > 0.0001;
+		
+		return (Math.random()) > 0.3;
 	}
 	
 	/**
