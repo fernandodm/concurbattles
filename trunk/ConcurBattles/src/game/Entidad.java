@@ -1,16 +1,18 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
   
 import channel.Channel;
 
 public class Entidad {
 	private int bando = 0;
-    private Integer id;
+    private Integer idEntidad;
 	private  List<ArrayList<Integer>> ciudadesAdyacentes;
+	
 	private ArrayList<Unidad> unidades = new ArrayList <Unidad>();
-	/**
+	/**getId
 	 * Dada una Unidad se verifica si en la ciudad existan unidades del bando contrario
 	 * @param unaUnidad
 	 * @return
@@ -29,19 +31,30 @@ public class Entidad {
 	 * @param unaUnidad
 	 */
 	protected void iniciarPelea(Unidad unaUnidad){
+		
+		
+		
+		ArrayList<Unidad> muertos = new ArrayList<Unidad>();
 		for (Unidad enemigo : unidades) {
 			
 			
 			unaUnidad.pelear(enemigo);
-			
+			System.out.println(" unidad " + unaUnidad.getId()+ " de bando  " + unaUnidad.getBando()+ " va a pelear con unidad de bando contrario " + enemigo.getId());
 			if(enemigo.isEstoyVivo()){
 			   break;
 			}else{
-			  unidades.remove(enemigo);
+				
+				Unidad muerto = enemigo;
+				muertos.add(enemigo);
+			 //unidades.remove(enemigo);
 			}
 			
 			
 			
+		}
+		if(!muertos.isEmpty()){
+			
+			unidades.removeAll(muertos);
 		}
 	}
 	
@@ -55,30 +68,39 @@ public class Entidad {
 	 * las ciudades adyacentes entre la que elegiran una para viajar; caso contrario, se queda en la ciudad.
 	 */
 	protected void decidan(){
+		ArrayList<Unidad> viajeros = new ArrayList<Unidad>();
        for (Unidad unidad : this.getUnidades()) {
-			boolean decision = unidad.decidirViajar();
+			boolean decision = unidad.decidirViajar(); 
 			if(decision){
-				this.getUnidades().remove(unidad);
-				unidad.setCiudadAnterior(this.getId());
-				unidad.viajar(this.getId(), this.getCiudadesAdyacentes());
+				viajeros.add(unidad);
+				//this.getUnidades().remove(unidad); <--- remove inside list iteration == Java explotion
+				unidad.setCiudadAnterior(this.getIdEntidad());
+				unidad.viajar(this.getIdEntidad(), this.getCiudadesAdyacentes());
+			}else{
+				System.out.println(" unanidad " + unidad.getId()+ " de bando  " + unidad.getBando()+ " decidio quedarse");
 			}
 			
 			
 		}
+       if(!viajeros.isEmpty()){
+    	   this.getUnidades().removeAll(viajeros);
+       }
+       
 	}
 	
 	
 	public int getBando() {
 		return bando;
 	}
+	
 	public void setBando(int bando) {
 		this.bando = bando;
 	}
-	public int getId() {
-		return id;
+	public int getIdEntidad() {
+		return idEntidad;
 	}
-	public void setId(int id) {
-		this.id = id;
+	public void setIdEntidad(int id) {
+		this.idEntidad = id;
 	}
 	public List<ArrayList<Integer>> getCiudadesAdyacentes() {
 		return ciudadesAdyacentes;

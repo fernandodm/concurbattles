@@ -32,9 +32,10 @@ public class Unidad implements Serializable {
 
 	public Unidad(int bando) {
 		
+		this.setBando(bando);
 		id = ((bando == 1) ? "g" : "s") + (idIncremental++).toString();
 		
-		this.setBando(bando);
+		
 		this.setEstoyVivo(true);
 		this.setCiudadAnterior(bando);
 		miCanal = GeneradorDeCanal.generarNumeroDeCanal();
@@ -100,9 +101,22 @@ public class Unidad implements Serializable {
 				// Elegir un camino random, crear el canal correspondiente y mandarse
 				List<Integer> destino = destinos.get((int) Math.floor(Math.random() * destinos.size()));
 				
+				
 				int permisoDestino = (  getPermisoDestino(destino.get(0))  )   + destino.get(1);
 				int accesoDestino = getAccesoDestino(destino.get(0)) + destino.get(1) ;
 				
+				switch (destino.get(0)) {
+				
+				case 1:
+					System.out.println("Unidad " +id+" de bando "+bando+" ha elegido viajar " );
+					break;
+				case 2:
+					System.out.println("Unidad " +id+" de bando "+bando+" ha elegido viajar " );
+					break;
+				case 3:
+					System.out.println("Unidad " +id+" de bando "+bando+" ha elegido viajar " );
+					break;
+				}
 				Channel<Unidad> pCamino = new Channel<Unidad>(permisoDestino);
 				Channel<Unidad> aCamino = new Channel<Unidad>(accesoDestino);
 				pCamino.receive();
@@ -142,8 +156,7 @@ public class Unidad implements Serializable {
 			return 3000+300;
 			
 
-		default:
-			break;
+		
 		}
 		return null;
 		
@@ -162,8 +175,7 @@ public class Unidad implements Serializable {
 			return 3000+400;
 			
 
-		default:
-			break;
+		
 		}
 		return null;
 		
@@ -179,6 +191,7 @@ public class Unidad implements Serializable {
 		
 		if(this.esFibonacci(this.getBatallasGanadas())) {
 			this.nivel += 1;
+			System.out.println("Unidad" + this.getId() + " de bando " + this.getBando() + " ha sibido de nivel");
 		}
 	}
 	
@@ -201,7 +214,7 @@ public class Unidad implements Serializable {
 	 * @return
 	 */
 	public boolean decidirViajar(){
-		return (int) (Math.random()) <= 0.5;
+		return (int) (Math.random()) <= 0.99;
 	}
 	
 	/**
