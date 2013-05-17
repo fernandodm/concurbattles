@@ -35,11 +35,14 @@ public class Unidad implements Serializable {
 		this.setBando(bando);
 		id = ((bando == 1) ? "g" : "s") + (idIncremental++).toString();
 		
-		
 		this.setEstoyVivo(true);
 		this.setCiudadAnterior(bando);
 		miCanal = GeneradorDeCanal.generarNumeroDeCanal();
 		canalDePermiso = GeneradorDeCanal.generarNumeroDeCanal();
+		
+		Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
+		notificacionUI.send(id +" "+ bando + "");
+		
 		/*
 		new Thread(){
 			public void run() {
@@ -204,6 +207,9 @@ public class Unidad implements Serializable {
 			(new Channel<Unidad>(this.getBando())).send(new Unidad(this.getBando()));
 		}
 		this.setEstoyVivo(false);
+		
+		Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
+		notificacionUI.send(id);
 	}
 	
 	/**
