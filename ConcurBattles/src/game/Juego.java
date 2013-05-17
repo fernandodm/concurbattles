@@ -6,7 +6,7 @@ import java.util.List;
 
 import static java.lang.Integer.parseInt;
 
-
+import ar.edu.unq.tpi.concurbattles.ConcurBattles;
 import channel.Channel;
 
 public class Juego {
@@ -32,10 +32,14 @@ public class Juego {
 						List<String> caminos = new ArrayList<String>(Arrays.asList(camino.split(" ")));
 						caminos.remove(0);
 						
+						//////////////////////////////////////////////
+						/// ACA HAY QUE ARMAR LOS List de ArrayList ??
+						//////////////////////////////////////////////
 						List<Integer> caminosInt = new ArrayList<Integer>();
 						for(String s : caminos) {
 							caminosInt.add(parseInt(s));
 						}
+						//////////////////////////////////////////////
 						
 						// Agregar los caminos a la lista
 						ciudades.add(caminosInt);
@@ -97,14 +101,12 @@ public class Juego {
 		new Thread() {
 			public void run() {
 				String[] arg = {inputChannel.toString(), outputChannel.toString()};
-				/*
+				
 				try {
-					
 					ConcurBattles.main(arg);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				*/
 			}
 		}.start();
 	}
