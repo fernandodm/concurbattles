@@ -21,7 +21,7 @@ public class Castle extends Entidad {
 			public void run(){
 				System.out.println("creando primera unidad ");
 				crearUnidad.send(new Unidad(getBando()));
-				while(true){
+				while(! Game.gameOver()){
 					Unidad unidadNueva = crearUnidad.receive();
 					System.out.println("Entrando unidad a castillo " + getBando());
 					permisoPuerta.receive();
@@ -34,7 +34,7 @@ public class Castle extends Entidad {
 		new Thread(){
 			public void run(){
 				permisoPuerta.send(1);
-				while (true){
+				while (! Game.gameOver()){
 					Unidad unidad = puerta.receive();
 					arenaControl.send("add");
 					arena.send(unidad);
@@ -47,7 +47,7 @@ public class Castle extends Entidad {
 				new Thread(){
 					public void run(){
 						
-						while (true){
+						while (! Game.gameOver()){
 							String orden = arenaControl.receive();
 							if(orden.equals("add")){
 								Unidad unidad = arena.receive();
@@ -66,7 +66,9 @@ public class Castle extends Entidad {
 										Integer myId =  (int) getId();
 										// avisar a castillo de getBando(), que cree otra unidad.
 										(new Channel<Unidad>(getBando())).send(new Unidad(unidad.getBando()));
+										Game.setGameOver(true);
 										
+										System.out.println("GANO EL BANDO "+ ((getBando() == 1) ? "GOLD" : "SILVER"));
 									}
 								}
 							  decidan();		
