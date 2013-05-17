@@ -98,7 +98,7 @@ public class Unidad implements Serializable {
 	 * @param caminos
 	 */
 	public void viajar(Integer idActual, List<ArrayList<Integer>> destinos) {
-		System.out.println("Me dijeron que tengo que viajar"+ this.getId());
+
 		if(isEstoyVivo()) {
 			if(! destinos.isEmpty()) {
 				// Elegir un camino random, crear el canal correspondiente y mandarse
@@ -107,7 +107,7 @@ public class Unidad implements Serializable {
 				
 				int permisoDestino = (  getPermisoDestino(destino.get(0))  )   + destino.get(1);
 				int accesoDestino = getAccesoDestino(destino.get(0)) + destino.get(1) ;
-				
+				/*
 				switch (destino.get(0)) {
 				
 				case 1:
@@ -119,13 +119,14 @@ public class Unidad implements Serializable {
 				case 3:
 					System.out.println("Unidad " +id+" de bando "+bando+" ha elegido viajar " );
 					break;
-				}
+				}*/
 				Channel<Unidad> pCamino = new Channel<Unidad>(permisoDestino);
 				Channel<Unidad> aCamino = new Channel<Unidad>(accesoDestino);
 				pCamino.receive();
 				aCamino.send(this);
 
-				System.out.println("Viajo a la ciudad "+ destino.get(1));
+				//System.out.println("Viajo a la ciudad "+ destino.get(1));
+				System.out.println(id +" de bando "+ bando +" decidio viajar a "+ destino.get(1));
 				
 				Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
 				notificacionUI.send(this.getId() +" "+ destino.get(1) + "");
