@@ -8,16 +8,20 @@ import channel.Channel;
 public class Path extends Entidad {
 	@Override
 	protected void decidan(){
+		ArrayList<Unidad> viajeros = new ArrayList<Unidad>();
 		 for (Unidad unidad : getUnidades()) {
 				boolean decision = unidad.decidirViajar();
 				if(decision){
-					getUnidades().remove(unidad);
+					//getUnidades().remove(unidad);// REMOVE INSIDE LIST ITERATION ==  EXPPLOTION
 					List<ArrayList<Integer>> destino  = this.quitarCiudadAnterior(unidad.getCiudadAnterior());
-					unidad.viajar(getId(), destino);
+					unidad.viajar(getIdEntidad(), destino);
 				}
 				
 				
-			}
+		}
+		 if(!viajeros.isEmpty()){
+	    	   this.getUnidades().removeAll(viajeros);
+	       }
 	}
 	
 	private List<ArrayList<Integer>> quitarCiudadAnterior(Integer ciudadAnterior){
@@ -34,12 +38,12 @@ public class Path extends Entidad {
 		return null;
 	}
 	public Path(List<ArrayList<Integer>> ciudadesA, int elId  ){
-		this.setId(elId);
+		this.setIdEntidad(elId);
 		this.setCiudadesAdyacentes(ciudadesA);
-		final Channel<String> arenaControl = new Channel<String>(getId()+3100);
-		final Channel<Unidad> arena = new Channel<Unidad>(getId()+2200);
-		final Channel<Integer> permisoPuerta = new Channel<Integer>(getId()+2300);
-		final Channel<Unidad> puerta = new Channel<Unidad>(getId()+2400);
+		final Channel<String> arenaControl = new Channel<String>(getIdEntidad()+3100);
+		final Channel<Unidad> arena = new Channel<Unidad>(getIdEntidad()+2200);
+		final Channel<Integer> permisoPuerta = new Channel<Integer>(getIdEntidad()+2300);
+		final Channel<Unidad> puerta = new Channel<Unidad>(getIdEntidad()+2400);
 		
 		//thread puerta
 		new Thread(){

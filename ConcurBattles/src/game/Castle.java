@@ -6,13 +6,14 @@ import java.util.List;
 import channel.Channel;
 
 public class Castle extends Entidad {
-	public Castle(List<ArrayList<Integer>> ciudadesA, int elId  ){
-		this.setId(elId);
+	public Castle(List<ArrayList<Integer>> ciudadesA, int elId, int bando  ){
+		this.setBando(bando);
+		this.setIdEntidad(elId);
 		this.setCiudadesAdyacentes(ciudadesA);
-		final Channel<String> arenaControl = new Channel<String>(getId()+2100);
-		final Channel<Unidad> arena = new Channel<Unidad>(getId()+2200);
-		final Channel<Integer> permisoPuerta = new Channel<Integer>(getId()+2300);
-		final Channel<Unidad> puerta = new Channel<Unidad>(getId()+2400);
+		final Channel<String> arenaControl = new Channel<String>(getIdEntidad()+2100);
+		final Channel<Unidad> arena = new Channel<Unidad>(getIdEntidad()+2200);
+		final Channel<Integer> permisoPuerta = new Channel<Integer>(getIdEntidad()+2300);
+		final Channel<Unidad> puerta = new Channel<Unidad>(getIdEntidad()+2400);
 		final Channel<Unidad> crearUnidad = new Channel<Unidad>(getBando());
 		
 		//threadCreacionUnidad
@@ -58,7 +59,7 @@ public class Castle extends Entidad {
 									//verificar getBando(), si es distinto, conquisto
 									if(getBando()!= unidad.getBando()){
 										setBando(unidad.getBando());
-										System.out.println(" La ciudad " + getId()+ " ha sido conquistada por la unidad "+ unidad.getId()+" del bando " + unidad.getBando() + " !!");
+										System.out.println(" La ciudad " + getIdEntidad()+ " ha sido conquistada por la unidad "+ unidad.getId()+" del bando " + unidad.getBando() + " !!");
 										//crear unidad en castillo de dicho getBando()
 										Integer myId =  (int) getId();
 										// avisar a castillo de getBando(), que cree otra unidad.
