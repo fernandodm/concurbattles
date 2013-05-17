@@ -42,7 +42,7 @@ public class Entidad {
 			System.out.println(" unidad " + unaUnidad.getId()+ " de bando  " + unaUnidad.getBando()+ " va a pelear con unidad de bando contrario " + enemigo.getId());
 			unaUnidad.pelear(enemigo);
 			if(enemigo.isEstoyVivo()){
-				System.out.println("La unidad atacante ha muerto!");
+				System.out.println("La unidad " + unaUnidad.getId()+"atacante ha muerto!");
 			   break;
 			}else{
 				System.out.println("Unidad" +unaUnidad.getId()+  "mato a un defensor!!");
@@ -72,8 +72,10 @@ public class Entidad {
 	protected void decidan(){
 		ArrayList<Unidad> viajeros = new ArrayList<Unidad>();
        for (Unidad unidad : this.getUnidades()) {
+    	   System.out.println("unidad "+ unidad.getId() +" decidiendo...");
 			boolean decision = unidad.decidirViajar(); 
 			if(decision){
+				System.out.println("unidad"+unidad.getId()+" queriendo viajar...");
 				viajeros.add(unidad);
 				//this.getUnidades().remove(unidad); <--- remove inside list iteration == Java explotion
 				unidad.setCiudadAnterior(this.getIdEntidad());

@@ -221,7 +221,7 @@ public class Unidad implements Serializable {
 	 * @return
 	 */
 	public boolean decidirViajar(){
-		return (int) (Math.random()) <= 0.99;
+		return (Math.random()) > 0.0001;
 	}
 	
 	/**
