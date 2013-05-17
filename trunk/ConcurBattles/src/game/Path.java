@@ -11,10 +11,14 @@ public class Path extends Entidad {
 		ArrayList<Unidad> viajeros = new ArrayList<Unidad>();
 		 for (Unidad unidad : getUnidades()) {
 				boolean decision = unidad.decidirViajar();
+				System.out.println("unidad"+unidad.getId()+" decidiendo que hacer en camino...");
 				if(decision){
+					System.out.println("unidad quiere viajar...");
 					//getUnidades().remove(unidad);// REMOVE INSIDE LIST ITERATION ==  EXPPLOTION
 					List<ArrayList<Integer>> destino  = this.quitarCiudadAnterior(unidad.getCiudadAnterior());
 					unidad.viajar(getIdEntidad(), destino);
+				}else{
+					System.out.println("unidad decidio quedarse...");
 				}
 				
 				
@@ -41,9 +45,9 @@ public class Path extends Entidad {
 		this.setIdEntidad(elId);
 		this.setCiudadesAdyacentes(ciudadesA);
 		final Channel<String> arenaControl = new Channel<String>(getIdEntidad()+3100);
-		final Channel<Unidad> arena = new Channel<Unidad>(getIdEntidad()+2200);
-		final Channel<Integer> permisoPuerta = new Channel<Integer>(getIdEntidad()+2300);
-		final Channel<Unidad> puerta = new Channel<Unidad>(getIdEntidad()+2400);
+		final Channel<Unidad> arena = new Channel<Unidad>(getIdEntidad()+3200);
+		final Channel<Integer> permisoPuerta = new Channel<Integer>(getIdEntidad()+3300);
+		final Channel<Unidad> puerta = new Channel<Unidad>(getIdEntidad()+3400);
 		
 		//thread puerta
 		new Thread(){
