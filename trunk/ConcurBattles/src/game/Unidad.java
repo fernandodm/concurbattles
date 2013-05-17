@@ -129,7 +129,12 @@ public class Unidad implements Serializable {
 				System.out.println(id +" de bando "+ bando +" decidio viajar a "+ destino.get(1));
 				
 				Channel<String> notificacionUI = new Channel<String>(Juego.inputChannel);
-				notificacionUI.send(this.getId() +" "+ destino.get(1) + "");
+				if(destinos.size() == 2) {
+					notificacionUI.send(this.getId() +" "+ destino.get(destinos.size() - 1) + " 0.5");	
+				} else {
+					notificacionUI.send(this.getId() +" "+ destino.get(destinos.size() - 1) + "");
+				}
+				
 
 
 				/*
