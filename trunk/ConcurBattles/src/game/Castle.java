@@ -68,7 +68,7 @@ public class Castle extends Entidad {
 										(new Channel<Unidad>(getBando())).send(new Unidad(unidad.getBando()));
 										Game.setGameOver(true);
 										
-										System.out.println("GANO EL BANDO "+ ((getBando() == 1) ? "GOLD" : "SILVER"));
+										System.out.println("GANO EL BANDO "+ ((getBando() == 1) ? "GOLD" : "SILVER")+ "nro: "+ getBando());
 									}
 								}
 							  decidan();		
