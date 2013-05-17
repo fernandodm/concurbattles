@@ -38,12 +38,14 @@ public class Entidad {
 		for (Unidad enemigo : unidades) {
 			
 			
-			unaUnidad.pelear(enemigo);
+			
 			System.out.println(" unidad " + unaUnidad.getId()+ " de bando  " + unaUnidad.getBando()+ " va a pelear con unidad de bando contrario " + enemigo.getId());
+			unaUnidad.pelear(enemigo);
 			if(enemigo.isEstoyVivo()){
+				System.out.println("La unidad atacante ha muerto!");
 			   break;
 			}else{
-				
+				System.out.println("Unidad" +unaUnidad.getId()+  "mato a un defensor!!");
 				Unidad muerto = enemigo;
 				muertos.add(enemigo);
 			 //unidades.remove(enemigo);

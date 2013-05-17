@@ -63,7 +63,7 @@ public class Castle extends Entidad {
 										//crear unidad en castillo de dicho getBando()
 										Integer myId =  (int) getId();
 										// avisar a castillo de getBando(), que cree otra unidad.
-										(new Channel<Unidad>(getBando())).send(new Unidad(myId));
+										(new Channel<Unidad>(getBando())).send(new Unidad(unidad.getBando()));
 										
 									}
 								}

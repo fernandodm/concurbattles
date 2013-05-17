@@ -45,6 +45,7 @@ public class City extends Entidad {
 								}
 								if(unidad.isEstoyVivo()){
 									getUnidades().add(unidad);
+									System.out.println("Unidad " + unidad.getId() + " entro en ciudad");
 									//verificar getBando(), si es distinto, conquisto
 									if(getBando()!= unidad.getBando()){
 										setBando(unidad.getBando());
@@ -53,6 +54,7 @@ public class City extends Entidad {
 										//Integer myId =  (int) getId();
 										// avisar a castillo de getBando(), que cree otra unidad.
 										(new Channel<Unidad>(getBando())).send(new Unidad(unidad.getBando()));
+										
 										
 									}
 								}
