@@ -21,7 +21,7 @@ public class City extends Entidad {
 		new Thread(){
 			public void run(){
 				permisoPuerta.send(1);
-				while (true){
+				while (! Game.gameOver()){
 					Unidad unidad = puerta.receive();
 					arenaControl.send("add");
 					arena.send(unidad);
@@ -34,7 +34,7 @@ public class City extends Entidad {
 				new Thread(){
 					public void run(){
 						
-						while (true){
+						while (! Game.gameOver()){
 							String orden = arenaControl.receive();
 							if(orden.equals("add")){
 								Unidad unidad = arena.receive();
