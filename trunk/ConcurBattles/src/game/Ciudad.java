@@ -14,11 +14,11 @@ public class Ciudad {
 	private final List<Integer> DESTINOS;
 	
 	Integer nroMsjs = GeneradorDeCanal.generarNumeroDeCanal();
-	Integer nroPermiso = GeneradorDeCanal.generarPermiso();
+	Integer nroPermiso = GeneradorDeCanal.generarNumeroDeCanal();
 	
 	//Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
 	Channel<String> msj = new Channel<String>(nroMsjs);
-	Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarOtroNumeroDeCanal());
+	Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarNumeroDeCanal());
 	Channel<String> permiso = new Channel<String>(nroPermiso);
 	Channel<Unidad> enviarAlCastillo = new Channel<Unidad>(getBANDO());
 	
@@ -99,6 +99,12 @@ public class Ciudad {
 				while(! Juego.gameOver()) {
 					
 					Unidad unidad = unidadNueva.receive();
+					//////////////////////////////////////////////////
+					/**
+					new Channel<Integer>(unidad.getCanalDePermiso()).send(nroDePermiso);
+					new Channel<Integer>(unidad.miCanal).send(nroMsjs);
+					*/
+					/////////////////////////////////////////////////
 					unidad.setCanalDePermiso(nroPermiso);
 					unidad.setMsj(nroMsjs);
 					

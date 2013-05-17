@@ -1,12 +1,20 @@
 package game;
 
 public class GeneradorDeCanal {
-	
-	private static int permisoEspecial = 4999;
+	/**
+	private static int permisoEspecial = 6999;
 	private static int permiso = 5999;
-	private static int numeroDeCanal = 6999;
 	private static int otroNumeroDeCanal = 7999;
+	*/
+	private static int numeroDeCanal = 4999;
 	
+	public static int generarNumeroDeCanal(){
+		
+		numeroDeCanal = numeroDeCanal + 1;
+	
+		return numeroDeCanal;
+	}
+	/**
 	public static int generarPermisoEspecial(){
 		
 		permisoEspecial = permisoEspecial + 1;
@@ -21,12 +29,6 @@ public class GeneradorDeCanal {
 		return permiso;
 	}
 
-	public static int generarNumeroDeCanal(){
-	
-		numeroDeCanal = numeroDeCanal + 1;
-	
-		return numeroDeCanal;
-	}
 
 	public static int generarOtroNumeroDeCanal(){
 		
@@ -34,6 +36,7 @@ public class GeneradorDeCanal {
 	
 		return otroNumeroDeCanal;
 	}
+	*/
 	/**
 	 * @param args
 	 */

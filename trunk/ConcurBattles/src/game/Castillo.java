@@ -15,11 +15,11 @@ public class Castillo {
 	private List<Integer> DESTINOS;
 	
 	Integer nroMsjs = GeneradorDeCanal.generarNumeroDeCanal();
-	Integer nroPermiso = GeneradorDeCanal.generarPermiso();
+	Integer nroPermiso = GeneradorDeCanal.generarNumeroDeCanal();
 	
-	private final Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarPermisoEspecial());
+	//private final Channel<String> permisoEspecial = new Channel<String>(GeneradorDeCanal.generarNumeroDeCanal());
 	private final Channel<String> msj = new Channel<String>(nroMsjs);
-	private final Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarOtroNumeroDeCanal());
+	private final Channel<Unidad> enviarALaArena = new Channel<Unidad>(GeneradorDeCanal.generarNumeroDeCanal());
 	private final Channel<String> permiso = new Channel<String>(nroPermiso);
 	
 	List<CaminoDobleEntrada> caminos = new ArrayList<CaminoDobleEntrada>();
@@ -54,7 +54,7 @@ public class Castillo {
 			public void run(){
 				
 				Set<Unidad> unidades = new HashSet<Unidad>();
-				permisoEspecial.send("permiso");
+				//permisoEspecial.send("permiso");
 				permiso.send("permiso");
 
 				while(! Juego.gameOver()){
@@ -134,6 +134,12 @@ public class Castillo {
 					
 					notificacionUI.send(unidad.getId() +" "+ getID_CITY());
 					System.out.println(nroPermiso);
+					//////////////////////////////////////////////////
+					/**
+					new Channel<Integer>(unidad.getCanalDePermiso()).send(nroDePermiso);
+					new Channel<Integer>(unidad.miCanal).send(nroMsjs);
+					*/
+					/////////////////////////////////////////////////
 					unidad.setCanalDePermiso(nroPermiso);
 					unidad.setMsj(nroMsjs);
 					

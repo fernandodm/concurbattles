@@ -18,7 +18,7 @@ public class Unidad implements Serializable {
 	private Integer msj;
 	private Integer ciudadAnterior;
 	
-	private Integer miCanal;
+	public Integer miCanal;
 	
 	private static Integer idIncremental = 1;
 
@@ -37,14 +37,22 @@ public class Unidad implements Serializable {
 		this.setBando(bando);
 		this.setEstoyVivo(true);
 		this.setCiudadAnterior(bando);
-		miCanal = GeneradorDeCanal.generarOtroNumeroDeCanal();
+		miCanal = GeneradorDeCanal.generarNumeroDeCanal();
+		canalDePermiso = GeneradorDeCanal.generarNumeroDeCanal();
 		/*
 		new Thread(){
 			public void run() {
 				while(!Juego.gameOver()) {
 					
+					/////////////////////////////////////////
+					//Channel<Integer> canalPermiso = new Channel<Integer> (canlDePermiso.receive());
+					//Channel<Integer> canalParaMensaje = new Channel<Integer> (miCanal.receive());
+					//canalPermiso.receive();
+					//canalParaMensaje.send("sacar");
+					////////////////////////////////////////
 					
-					System.out.println(canalDePermiso);
+					
+					
 					if(canalDePermiso != null) {
 						Channel<String> permiso = new Channel<String>(getCanalDePermiso());
 						Channel<String> mensaje = new Channel<String>(getMsj());
