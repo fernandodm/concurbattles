@@ -24,12 +24,14 @@ public class Juego {
 			public void run() {
 				while (true) {
 					String[] mapa = c2.receive().split("\n");
-					
+					System.out.println(mapa);
 					final List<List<Integer>> ciudades = new ArrayList<List<Integer>>();
+					ArrayList<ArrayList<Integer>> ciudadesMapeadas = new ArrayList<ArrayList<Integer>>();
 					
 					for(String camino : mapa) {
 						// Separarlo por espacios y sacar el primer espacio en blanco
 						List<String> caminos = new ArrayList<String>(Arrays.asList(camino.split(" ")));
+						System.out.println("esto de la transformacion " + caminos);
 						caminos.remove(0);
 						
 						//////////////////////////////////////////////

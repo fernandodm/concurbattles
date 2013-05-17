@@ -83,7 +83,7 @@ public class Ciudad {
 						if(mensaje.equals("sacar")){
 							unidades.remove(unidad);
 							unidad.setCanalDePermiso(null);
-							unidad.viajar(getID_CITY(), getDESTINOS());
+						//	unidad.viajar(getID_CITY(), getDESTINOS());
 						}
 					}
 				permiso.send("permiso");	

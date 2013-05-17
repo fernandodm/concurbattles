@@ -112,7 +112,7 @@ public class Castillo {
 									unit = u;
 								}
 								
-								unit.viajar(getID_CITY(), getDESTINOS());
+								//unit.viajar(getID_CITY(), getDESTINOS());
 								unidades.remove(unit);
 							}
 					}
